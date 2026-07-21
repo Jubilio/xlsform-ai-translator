@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: xlsform-ai-translator
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22
+      - key: TRANSLATION_PROVIDER
+        value: mock
+      - key: MAX_BATCH_ITEMS
+        value: 40
+      - key: MAX_TEXT_LENGTH
+        value: 5000
+      - key: DEEPL_API_KEY
+        sync: false
+      - key: DEEPL_API_URL
+        value: https://api-free.deepl.com/v2/translate
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5-mini
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: AZURE_TRANSLATOR_KEY
+        sync: false
+      - key: AZURE_TRANSLATOR_REGION
+        sync: false
+      - key: AZURE_TRANSLATOR_ENDPOINT
+        value: https://api.cognitive.microsofttranslator.com
