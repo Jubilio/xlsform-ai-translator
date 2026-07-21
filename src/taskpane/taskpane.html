@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XLSForm AI Translator</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div class="brand-mark">XT</div>
+      <div>
+        <h1>XLSForm AI Translator</h1>
+        <p>Traduza labels e hints sem alterar a lógica do formulário.</p>
+      </div>
+    </header>
+
+    <div id="office-warning" class="notice warning hidden">
+      Abra este painel dentro do Microsoft Excel.
+    </div>
+
+    <section class="card">
+      <h2>Idiomas</h2>
+      <div class="grid two-columns">
+        <label>
+          Origem
+          <select id="source-language"></select>
+        </label>
+        <label>
+          Destino
+          <select id="target-language"></select>
+        </label>
+      </div>
+      <label>
+        Variante linguística
+        <select id="locale-style">
+          <option value="Português de Moçambique, terminologia humanitária clara e português europeu">Português de Moçambique</option>
+          <option value="Português neutro e claro">Português neutro</option>
+          <option value="Tradução profissional neutra">Neutra/profissional</option>
+        </select>
+      </label>
+      <label>
+        Provedor
+        <select id="provider">
+          <option value="auto">Configurado no servidor</option>
+          <option value="openai">OpenAI</option>
+          <option value="deepl">DeepL</option>
+          <option value="microsoft">Microsoft Translator</option>
+          <option value="mock">Demonstração sem API</option>
+        </select>
+      </label>
+      <div id="provider-status" class="small muted"></div>
+    </section>
+
+    <section class="card">
+      <h2>Opções XLSForm</h2>
+      <div class="checkbox-row">
+        <label><input id="sheet-survey" type="checkbox" checked /> survey</label>
+        <label><input id="sheet-choices" type="checkbox" checked /> choices</label>
+        <label><input id="sheet-settings" type="checkbox" /> settings</label>
+      </div>
+      <label class="check"><input id="use-glossary" type="checkbox" checked /> Usar glossário humanitário</label>
+      <label class="check"><input id="overwrite-existing" type="checkbox" /> Substituir traduções existentes</label>
+      <label class="check"><input id="preview-before-apply" type="checkbox" checked /> Rever antes de aplicar</label>
+    </section>
+
+    <section class="card actions-card">
+      <button id="translate-selection" class="button secondary">Traduzir selecção</button>
+      <button id="translate-xlsform" class="button primary">Traduzir XLSForm</button>
+      <button id="validate-xlsform" class="button ghost">Analisar estrutura</button>
+    </section>
+
+    <section id="progress-card" class="card hidden" aria-live="polite">
+      <div class="progress-line"><span id="progress-text">A preparar…</span><span id="progress-count"></span></div>
+      <progress id="progress" value="0" max="100"></progress>
+    </section>
+
+    <section id="preview-card" class="card hidden">
+      <div class="section-heading">
+        <div>
+          <h2>Pré-visualização</h2>
+          <p id="preview-summary" class="muted"></p>
+        </div>
+        <button id="clear-preview" class="icon-button" title="Fechar">×</button>
+      </div>
+      <div id="preview-list" class="preview-list"></div>
+      <div class="sticky-actions">
+        <button id="apply-translations" class="button primary">Aplicar traduções</button>
+      </div>
+    </section>
+
+    <section id="results-card" class="card hidden">
+      <h2>Resultado</h2>
+      <div id="results-message"></div>
+    </section>
+
+    <footer>
+      <span>As chaves de API permanecem no backend.</span>
+    </footer>
+  </main>
+</body>
+</html>
