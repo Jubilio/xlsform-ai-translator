@@ -19,8 +19,11 @@
     "test:watch": "vitest",
     "certs": "tsx scripts/generate-cert.ts",
     "validate:manifest": "npx --yes office-addin-manifest validate manifest.xml",
+    "validate:manifest:production": "npx --yes office-addin-manifest validate manifest.production.xml",
+    "manifest:production": "node scripts/generate-production-manifest.mjs",
     "sideload": "npx --yes office-addin-debugging start manifest.xml desktop",
     "stop": "npx --yes office-addin-debugging stop manifest.xml",
+    "start": "node dist-server/server/index.js",
     "start:server": "node dist-server/server/index.js",
     "trust:cert:windows": "powershell -ExecutionPolicy Bypass -File scripts/trust-cert-windows.ps1"
   },
