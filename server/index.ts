@@ -11,6 +11,7 @@ const port = Number(process.env.PORT || 3001);
 const maxBatchItems = Number(process.env.MAX_BATCH_ITEMS || 40);
 const maxTextLength = Number(process.env.MAX_TEXT_LENGTH || 5000);
 
+app.set("trust proxy", 1);
 app.use(helmet({
   crossOriginResourcePolicy: false,
   contentSecurityPolicy: false
@@ -24,7 +25,11 @@ app.use("/api", rateLimit({
 }));
 
 app.get("/api/health", (_request, response) => {
-  response.json({ ok: true, service: "xlsform-ai-translator" });
+  response.json({
+    ok: true,
+    service: "xlsform-ai-translator",
+    environment: process.env.NODE_ENV || "development"
+  });
 });
 
 app.get("/api/providers", (_request, response) => {
@@ -84,9 +89,24 @@ app.post("/api/translate", async (request, response) => {
 });
 
 const distPath = path.resolve(process.cwd(), "dist");
-app.use(express.static(distPath));
+app.use(express.static(distPath, {
+  extensions: ["html"],
+  maxAge: process.env.NODE_ENV === "production" ? "1h" : 0
+}));
 
-app.listen(port, () => {
-  console.log(`XLSForm AI Translator backend: http://localhost:${port}`);
+app.get("/", (_request, response) => {
+  response.sendFile(path.join(distPath, "taskpane.html"));
+});
+
+app.get("/taskpane.html", (_request, response) => {
+  response.sendFile(path.join(distPath, "taskpane.html"));
+});
+
+app.use((_request, response) => {
+  response.status(404).json({ error: "Recurso não encontrado." });
+});
+
+app.listen(port, "0.0.0.0", () => {
+  console.log(`XLSForm AI Translator backend: http://0.0.0.0:${port}`);
   console.log(`Provider default: ${process.env.TRANSLATION_PROVIDER || "mock"}`);
 });
