@@ -25,6 +25,7 @@
     "trust:cert:windows": "powershell -ExecutionPolicy Bypass -File scripts/trust-cert-windows.ps1"
   },
   "dependencies": {
+    "deepl-node": "^1.27.0",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.0",
