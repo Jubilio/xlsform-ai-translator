@@ -11,6 +11,11 @@ export interface TranslationItem {
   text: string;
 }
 
+export interface UserCredentials {
+  apiKey: string;
+  region?: string;
+}
+
 export interface TranslationRequest {
   provider: ProviderName;
   sourceLanguage: string;
@@ -20,6 +25,7 @@ export interface TranslationRequest {
   localeStyle: string;
   glossary: Record<string, string>;
   items: TranslationItem[];
+  userCredentials?: UserCredentials;
 }
 
 export interface TranslationResponseItem {
@@ -30,6 +36,7 @@ export interface TranslationResponseItem {
 export interface TranslationResponse {
   provider: string;
   model?: string;
+  credentialSource?: "server" | "user";
   translations: TranslationResponseItem[];
 }
 
