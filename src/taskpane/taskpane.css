@@ -30,7 +30,7 @@ button, select, input, textarea { font: inherit; }
 }
 .settings-panel { border-color: #bdd7d3; }
 .settings-panel .section-heading { margin-bottom: 8px; }
-.settings-panel .small { margin: 2px 0 0; }
+.settings-panel .small { margin: 2px 0 8px; }
 .card {
   background: white; border: 1px solid #dde5e7; border-radius: 12px;
   padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 7px rgba(18, 38, 52, .04);
@@ -39,11 +39,13 @@ button, select, input, textarea { font: inherit; }
 .grid { display: grid; gap: 10px; }
 .two-columns { grid-template-columns: 1fr 1fr; }
 label { display: block; color: #34434d; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
-select, textarea {
+select, textarea, input[type="text"], input[type="password"] {
   display: block; width: 100%; margin-top: 5px; border: 1px solid #c9d5d9;
   border-radius: 7px; padding: 8px; background: white; color: #17212b;
 }
-select:focus, textarea:focus { outline: 2px solid rgba(23, 107, 98, .25); border-color: #176b62; }
+select:focus, textarea:focus, input[type="text"]:focus, input[type="password"]:focus {
+  outline: 2px solid rgba(23, 107, 98, .25); border-color: #176b62;
+}
 .checkbox-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
 .checkbox-row label, .check { font-size: 13px; font-weight: 400; margin: 0 0 8px; }
 input[type="checkbox"] { accent-color: #176b62; }
@@ -59,6 +61,16 @@ input[type="checkbox"] { accent-color: #176b62; }
 .primary { background: #176b62; color: white; }
 .secondary { background: #e4f1ef; color: #10564f; }
 .ghost { background: #eef2f3; color: #34434d; }
+.settings-wide-button { width: 100%; margin-top: 8px; }
+.personal-api-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #dde5e7; }
+.personal-api-section h3 { margin: 0 0 6px; font-size: 14px; }
+.secret-input-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: end; }
+.secret-input-row input { margin-top: 5px; }
+.compact-button { min-width: 70px; padding: 8px 10px; }
+.api-help-box { background: #f5f8f8; border: 1px solid #dce6e7; border-radius: 8px; padding: 9px; margin: 6px 0 9px; }
+.api-help-box p { margin: 0 0 7px; font-size: 11px; line-height: 1.45; color: #46545d; }
+.api-help-box a { color: #176b62; font-size: 11px; font-weight: 600; }
+.api-status { color: #9a5b00; font-weight: 600; min-height: 16px; }
 .notice { padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
 .warning { background: #fff4dc; border: 1px solid #f2d38f; color: #6c4d0d; }
 .error { color: #a51d2d; }
