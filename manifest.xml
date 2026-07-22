@@ -17,7 +17,7 @@
     <Override Locale="pt-BR" Value="Traduza labels e hints de questionários Kobo/XLSForm no Excel, preservando variáveis, fórmulas, placeholders, formatação e a lógica do formulário."/>
   </Description>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+  <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://nexovibe.netlify.app/xlsform-translator/support"/>
   <AppDomains>
     <AppDomain>https://localhost:3000</AppDomain>
