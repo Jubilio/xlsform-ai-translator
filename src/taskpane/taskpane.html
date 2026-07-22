@@ -14,93 +14,109 @@
   <main class="app-shell">
     <header class="hero">
       <div class="brand-mark">XT</div>
-      <div>
+      <div class="hero-copy">
         <h1>XLSForm AI Translator</h1>
-        <p>Traduza labels e hints sem alterar a lógica do formulário.</p>
+        <p data-i18n="tagline">Traduza labels e hints sem alterar a lógica do formulário.</p>
       </div>
+      <button id="settings-button" class="settings-button" type="button" title="Configurações" aria-label="Configurações" aria-expanded="false">⚙</button>
     </header>
 
-    <div id="office-warning" class="notice warning hidden">
+    <section id="settings-panel" class="card settings-panel hidden" aria-hidden="true">
+      <div class="section-heading">
+        <h2 data-i18n="settingsTitle">Configurações</h2>
+        <button id="close-settings" class="icon-button" type="button" title="Fechar" aria-label="Fechar">×</button>
+      </div>
+      <label>
+        <span data-i18n="interfaceLanguage">Idioma da interface</span>
+        <select id="interface-language">
+          <option value="pt">Português</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+      <p class="small muted" data-i18n="languageSaved">A preferência é guardada neste dispositivo.</p>
+    </section>
+
+    <div id="office-warning" class="notice warning hidden" data-i18n="officeWarning">
       Abra este painel dentro do Microsoft Excel.
     </div>
 
     <section class="card">
-      <h2>Idiomas</h2>
+      <h2 data-i18n="languagesTitle">Idiomas</h2>
       <div class="grid two-columns">
         <label>
-          Origem
+          <span data-i18n="source">Origem</span>
           <select id="source-language"></select>
         </label>
         <label>
-          Destino
+          <span data-i18n="target">Destino</span>
           <select id="target-language"></select>
         </label>
       </div>
       <label>
-        Variante linguística
+        <span data-i18n="languageVariant">Variante linguística</span>
         <select id="locale-style">
-          <option value="Português de Moçambique, terminologia humanitária clara e português europeu">Português de Moçambique</option>
-          <option value="Português neutro e claro">Português neutro</option>
-          <option value="Tradução profissional neutra">Neutra/profissional</option>
+          <option value="Português de Moçambique, terminologia humanitária clara e português europeu" data-i18n="localeMozambique">Português de Moçambique</option>
+          <option value="Português neutro e claro" data-i18n="localeNeutralPortuguese">Português neutro</option>
+          <option value="Tradução profissional neutra" data-i18n="localeProfessional">Neutra/profissional</option>
         </select>
       </label>
       <label>
-        Provedor
+        <span data-i18n="provider">Provedor</span>
         <select id="provider">
-          <option value="auto">Configurado no servidor</option>
+          <option value="auto" data-i18n="providerServer">Configurado no servidor</option>
           <option value="openai">OpenAI</option>
           <option value="deepl">DeepL</option>
           <option value="microsoft">Microsoft Translator</option>
-          <option value="mock">Demonstração sem API</option>
+          <option value="mock" data-i18n="providerDemo">Demonstração sem API</option>
         </select>
       </label>
-      <div id="provider-status" class="hidden" aria-hidden="true"></div>
     </section>
 
     <section class="card">
-      <h2>Opções XLSForm</h2>
+      <h2 data-i18n="xlsformOptions">Opções XLSForm</h2>
       <div class="checkbox-row">
         <label><input id="sheet-survey" type="checkbox" checked /> survey</label>
         <label><input id="sheet-choices" type="checkbox" checked /> choices</label>
         <label><input id="sheet-settings" type="checkbox" /> settings</label>
       </div>
-      <label class="check"><input id="use-glossary" type="checkbox" checked /> Usar glossário humanitário</label>
-      <label class="check"><input id="overwrite-existing" type="checkbox" /> Substituir traduções existentes</label>
-      <label class="check"><input id="preview-before-apply" type="checkbox" checked /> Rever antes de aplicar</label>
+      <label class="check"><input id="use-glossary" type="checkbox" checked /> <span data-i18n="useGlossary">Usar glossário humanitário</span></label>
+      <label class="check"><input id="overwrite-existing" type="checkbox" /> <span data-i18n="overwriteExisting">Substituir traduções existentes</span></label>
+      <label class="check"><input id="preview-before-apply" type="checkbox" checked /> <span data-i18n="previewBeforeApply">Rever antes de aplicar</span></label>
     </section>
 
     <section class="card actions-card">
-      <button id="translate-selection" class="button secondary">Traduzir selecção</button>
-      <button id="translate-xlsform" class="button primary">Traduzir XLSForm</button>
-      <button id="validate-xlsform" class="button ghost">Analisar estrutura</button>
+      <button id="translate-selection" class="button secondary" data-i18n="translateSelection">Traduzir selecção</button>
+      <button id="translate-xlsform" class="button primary" data-i18n="translateXlsform">Traduzir XLSForm</button>
+      <button id="validate-xlsform" class="button ghost" data-i18n="analyseStructure">Analisar estrutura</button>
     </section>
 
     <section id="progress-card" class="card hidden" aria-live="polite">
-      <div class="progress-line"><span id="progress-text">A preparar…</span><span id="progress-count"></span></div>
+      <div class="progress-line"><span id="progress-text" data-i18n="preparing">A preparar…</span><span id="progress-count"></span></div>
       <progress id="progress" value="0" max="100"></progress>
     </section>
 
     <section id="preview-card" class="card hidden">
       <div class="section-heading">
         <div>
-          <h2>Pré-visualização</h2>
+          <h2 data-i18n="previewTitle">Pré-visualização</h2>
           <p id="preview-summary" class="muted"></p>
         </div>
-        <button id="clear-preview" class="icon-button" title="Fechar">×</button>
+        <button id="clear-preview" class="icon-button" type="button" title="Fechar" aria-label="Fechar">×</button>
       </div>
       <div id="preview-list" class="preview-list"></div>
       <div class="sticky-actions">
-        <button id="apply-translations" class="button primary">Aplicar traduções</button>
+        <button id="apply-translations" class="button primary" data-i18n="applyTranslations">Aplicar traduções</button>
       </div>
     </section>
 
     <section id="results-card" class="card hidden">
-      <h2>Resultado</h2>
+      <h2 data-i18n="resultTitle">Resultado</h2>
       <div id="results-message"></div>
     </section>
 
     <footer>
-      Desenvolvido por <a href="https://nexovibe.netlify.app/" target="_blank" rel="noopener noreferrer">Jubílio Maússe</a>
+      <span data-i18n="developedBy">Desenvolvido por</span>
+      <a href="https://nexovibe.netlify.app/" target="_blank" rel="noopener noreferrer">Jubílio Maússe</a>
     </footer>
   </main>
 </body>
