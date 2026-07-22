@@ -2,9 +2,7 @@ import type { ProviderInput, ProviderOutput, TranslationProvider } from "../type
 import { fetchJson } from "../utils/http.js";
 
 interface OpenAIResponse {
-  output?: Array<{
-    content?: Array<{ type?: string; text?: string }>;
-  }>;
+  output?: Array<{ content?: Array<{ type?: string; text?: string }> }>;
 }
 
 function extractOutputText(response: OpenAIResponse): string {
@@ -16,8 +14,10 @@ function extractOutputText(response: OpenAIResponse): string {
 }
 
 export class OpenAIProvider implements TranslationProvider {
+  constructor(private readonly userApiKey?: string) {}
+
   async translate(input: ProviderInput): Promise<ProviderOutput> {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = this.userApiKey || process.env.OPENAI_API_KEY;
     if (!apiKey) throw new Error("OPENAI_API_KEY não está configurada no servidor.");
     const model = process.env.OPENAI_MODEL || "gpt-5-mini";
     const baseUrl = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
@@ -46,10 +46,7 @@ export class OpenAIProvider implements TranslationProvider {
           items: {
             type: "object",
             additionalProperties: false,
-            properties: {
-              id: { type: "string" },
-              text: { type: "string" }
-            },
+            properties: { id: { type: "string" }, text: { type: "string" } },
             required: ["id", "text"]
           }
         }
@@ -59,10 +56,7 @@ export class OpenAIProvider implements TranslationProvider {
 
     const response = await fetchJson<OpenAIResponse>(`${baseUrl}/responses`, {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model,
         store: false,
@@ -70,15 +64,7 @@ export class OpenAIProvider implements TranslationProvider {
           { role: "system", content: system },
           { role: "user", content: JSON.stringify({ items: input.items }) }
         ],
-        text: {
-          format: {
-            type: "json_schema",
-            name: "xlsform_translations",
-            description: "Translations keyed by the unchanged input id.",
-            strict: true,
-            schema
-          }
-        }
+        text: { format: { type: "json_schema", name: "xlsform_translations", description: "Translations keyed by the unchanged input id.", strict: true, schema } }
       })
     });
 
@@ -86,11 +72,6 @@ export class OpenAIProvider implements TranslationProvider {
     if (!outputText) throw new Error("A OpenAI não devolveu texto na resposta.");
     const parsed = JSON.parse(outputText) as { translations?: Array<{ id: string; text: string }> };
     if (!Array.isArray(parsed.translations)) throw new Error("Formato de resposta OpenAI inválido.");
-
-    return {
-      provider: "openai",
-      model,
-      translations: parsed.translations
-    };
+    return { provider: "openai", model, translations: parsed.translations };
   }
 }
