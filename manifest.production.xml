@@ -5,11 +5,17 @@
            xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
            xsi:type="TaskPaneApp">
   <Id>61cf14b5-762a-4f77-85f7-3b021cae9d13</Id>
-  <Version>1.0.0.0</Version>
+  <Version>1.1.0.0</Version>
   <ProviderName>NexoVibe</ProviderName>
-  <DefaultLocale>pt-PT</DefaultLocale>
-  <DisplayName DefaultValue="XLSForm AI Translator"/>
-  <Description DefaultValue="Traduz labels e hints de questionários Kobo/XLSForm, preservando códigos, fórmulas e placeholders."/>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="XLSForm AI Translator">
+    <Override Locale="pt-PT" Value="Tradutor IA para XLSForm"/>
+    <Override Locale="pt-BR" Value="Tradutor IA para XLSForm"/>
+  </DisplayName>
+  <Description DefaultValue="Translate Kobo/XLSForm labels and hints in Excel while preserving variable names, formulas, placeholders, formatting, and form logic.">
+    <Override Locale="pt-PT" Value="Traduza labels e hints de questionários Kobo/XLSForm no Excel, preservando variáveis, fórmulas, placeholders, formatação e a lógica do formulário."/>
+    <Override Locale="pt-BR" Value="Traduza labels e hints de questionários Kobo/XLSForm no Excel, preservando variáveis, fórmulas, placeholders, formatação e a lógica do formulário."/>
+  </Description>
   <IconUrl DefaultValue="https://xlsform-ai-translator.onrender.com/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://xlsform-ai-translator.onrender.com/assets/icon-80.png"/>
   <SupportUrl DefaultValue="https://nexovibe.netlify.app/xlsform-translator/support"/>
@@ -79,10 +85,16 @@
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="Group.Label" DefaultValue="XLSForm"/>
-        <bt:String id="Button.Label" DefaultValue="Traduzir XLSForm"/>
+        <bt:String id="Button.Label" DefaultValue="Translate XLSForm">
+          <bt:Override Locale="pt-PT" Value="Traduzir XLSForm"/>
+          <bt:Override Locale="pt-BR" Value="Traduzir XLSForm"/>
+        </bt:String>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="Button.Tooltip" DefaultValue="Abre o painel para traduzir labels e hints sem alterar a lógica do XLSForm."/>
+        <bt:String id="Button.Tooltip" DefaultValue="Open the panel to translate XLSForm labels and hints without changing the form logic.">
+          <bt:Override Locale="pt-PT" Value="Abra o painel para traduzir labels e hints sem alterar a lógica do XLSForm."/>
+          <bt:Override Locale="pt-BR" Value="Abra o painel para traduzir labels e hints sem alterar a lógica do XLSForm."/>
+        </bt:String>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
