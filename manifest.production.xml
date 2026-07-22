@@ -6,15 +6,16 @@
            xsi:type="TaskPaneApp">
   <Id>61cf14b5-762a-4f77-85f7-3b021cae9d13</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Community / REACH workflow prototype</ProviderName>
+  <ProviderName>NexoVibe</ProviderName>
   <DefaultLocale>pt-PT</DefaultLocale>
   <DisplayName DefaultValue="XLSForm AI Translator"/>
   <Description DefaultValue="Traduz labels e hints de questionários Kobo/XLSForm, preservando códigos, fórmulas e placeholders."/>
   <IconUrl DefaultValue="https://xlsform-ai-translator.onrender.com/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://xlsform-ai-translator.onrender.com/assets/icon-80.png"/>
-  <SupportUrl DefaultValue="https://xlsform-ai-translator.onrender.com/taskpane.html"/>
+  <SupportUrl DefaultValue="https://nexovibe.netlify.app/xlsform-translator/support"/>
   <AppDomains>
     <AppDomain>https://xlsform-ai-translator.onrender.com</AppDomain>
+    <AppDomain>https://nexovibe.netlify.app</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
