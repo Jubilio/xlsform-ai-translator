@@ -4,6 +4,11 @@ import { MicrosoftProvider } from "./microsoft.js";
 import { MockProvider } from "./mock.js";
 import { OpenAIProvider } from "./openai.js";
 
+export interface UserCredentials {
+  apiKey?: string;
+  region?: string;
+}
+
 export function configuredProviders(): Record<ProviderName, boolean> {
   return {
     openai: Boolean(process.env.OPENAI_API_KEY),
@@ -13,15 +18,18 @@ export function configuredProviders(): Record<ProviderName, boolean> {
   };
 }
 
-export function resolveProvider(requested: string): TranslationProvider {
-  const selected = (requested === "auto"
+export function selectedProviderName(requested: string): ProviderName {
+  return (requested === "auto"
     ? process.env.TRANSLATION_PROVIDER || "mock"
     : requested).toLowerCase() as ProviderName;
+}
 
+export function resolveProvider(requested: string, credentials: UserCredentials = {}): TranslationProvider {
+  const selected = selectedProviderName(requested);
   switch (selected) {
-    case "openai": return new OpenAIProvider();
-    case "deepl": return new DeepLProvider();
-    case "microsoft": return new MicrosoftProvider();
+    case "openai": return new OpenAIProvider(credentials.apiKey);
+    case "deepl": return new DeepLProvider(credentials.apiKey);
+    case "microsoft": return new MicrosoftProvider(credentials);
     case "mock": return new MockProvider();
     default: throw new Error(`Provedor não suportado: ${selected}`);
   }
