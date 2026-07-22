@@ -34,6 +34,46 @@
         </select>
       </label>
       <p class="small muted" data-i18n="languageSaved">A preferência é guardada neste dispositivo.</p>
+
+      <button id="personal-api-configure" class="button ghost settings-wide-button" type="button">Configurar chave pessoal</button>
+
+      <section id="personal-api-section" class="personal-api-section hidden" aria-live="polite">
+        <h3 id="personal-api-title">Chaves pessoais de fallback</h3>
+        <p id="personal-api-intro" class="small muted"></p>
+
+        <label>
+          <span id="personal-api-provider-label">Provedor da chave pessoal</span>
+          <select id="personal-api-provider">
+            <option value="openai">OpenAI</option>
+            <option value="deepl">DeepL</option>
+            <option value="microsoft">Microsoft Translator</option>
+          </select>
+        </label>
+
+        <label>
+          <span id="personal-api-key-label">Chave de API</span>
+          <div class="secret-input-row">
+            <input id="personal-api-key" type="password" autocomplete="off" spellcheck="false" />
+            <button id="personal-api-show" class="button ghost compact-button" type="button">Mostrar</button>
+          </div>
+        </label>
+
+        <label id="personal-api-region-row" class="hidden">
+          <span id="personal-api-region-label">Região do Azure</span>
+          <input id="personal-api-region" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. eastus" />
+        </label>
+
+        <div class="api-help-box">
+          <p id="personal-api-openai-help" data-api-help="openai"></p>
+          <p id="personal-api-deepl-help" data-api-help="deepl" class="hidden"></p>
+          <p id="personal-api-microsoft-help" data-api-help="microsoft" class="hidden"></p>
+          <a id="personal-api-link" href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">Abrir página oficial / Open official page</a>
+        </div>
+
+        <p id="personal-api-privacy" class="small muted"></p>
+        <p id="personal-api-status" class="small api-status"></p>
+        <button id="personal-api-clear" class="button ghost settings-wide-button" type="button">Limpar chaves desta sessão</button>
+      </section>
     </section>
 
     <div id="office-warning" class="notice warning hidden" data-i18n="officeWarning">
@@ -43,14 +83,8 @@
     <section class="card">
       <h2 data-i18n="languagesTitle">Idiomas</h2>
       <div class="grid two-columns">
-        <label>
-          <span data-i18n="source">Origem</span>
-          <select id="source-language"></select>
-        </label>
-        <label>
-          <span data-i18n="target">Destino</span>
-          <select id="target-language"></select>
-        </label>
+        <label><span data-i18n="source">Origem</span><select id="source-language"></select></label>
+        <label><span data-i18n="target">Destino</span><select id="target-language"></select></label>
       </div>
       <label>
         <span data-i18n="languageVariant">Variante linguística</span>
@@ -97,16 +131,11 @@
 
     <section id="preview-card" class="card hidden">
       <div class="section-heading">
-        <div>
-          <h2 data-i18n="previewTitle">Pré-visualização</h2>
-          <p id="preview-summary" class="muted"></p>
-        </div>
+        <div><h2 data-i18n="previewTitle">Pré-visualização</h2><p id="preview-summary" class="muted"></p></div>
         <button id="clear-preview" class="icon-button" type="button" title="Fechar" aria-label="Fechar">×</button>
       </div>
       <div id="preview-list" class="preview-list"></div>
-      <div class="sticky-actions">
-        <button id="apply-translations" class="button primary" data-i18n="applyTranslations">Aplicar traduções</button>
-      </div>
+      <div class="sticky-actions"><button id="apply-translations" class="button primary" data-i18n="applyTranslations">Aplicar traduções</button></div>
     </section>
 
     <section id="results-card" class="card hidden">
