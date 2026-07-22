@@ -14,7 +14,8 @@ module.exports = (_env, argv) => {
 
   return {
     entry: {
-      taskpane: "./src/taskpane/taskpane.ts"
+      taskpane: "./src/taskpane/taskpane.ts",
+      "api-keys": "./src/taskpane/api-keys.ts"
     },
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -22,53 +23,29 @@ module.exports = (_env, argv) => {
       clean: true
     },
     devtool: isDevelopment ? "source-map" : false,
-    resolve: {
-      extensions: [".ts", ".js"]
-    },
+    resolve: { extensions: [".ts", ".js"] },
     module: {
       rules: [
-        {
-          test: /\.ts$/,
-          exclude: /node_modules/,
-          use: "ts-loader"
-        },
-        {
-          test: /\.css$/,
-          use: ["style-loader", "css-loader"]
-        }
+        { test: /\.ts$/, exclude: /node_modules/, use: "ts-loader" },
+        { test: /\.css$/, use: ["style-loader", "css-loader"] }
       ]
     },
     plugins: [
       new HtmlWebpackPlugin({
         filename: "taskpane.html",
         template: "./src/taskpane/taskpane.html",
-        chunks: ["taskpane"]
+        chunks: ["taskpane", "api-keys"]
       }),
-      new CopyWebpackPlugin({
-        patterns: [{ from: "assets", to: "assets" }]
-      })
+      new CopyWebpackPlugin({ patterns: [{ from: "assets", to: "assets" }] })
     ],
     devServer: {
       port: 3000,
       hot: true,
       headers: { "Access-Control-Allow-Origin": "*" },
       server: isDevelopment
-        ? {
-            type: "https",
-            options: {
-              cert: fs.readFileSync(certPath),
-              key: fs.readFileSync(keyPath)
-            }
-          }
+        ? { type: "https", options: { cert: fs.readFileSync(certPath), key: fs.readFileSync(keyPath) } }
         : "https",
-      proxy: [
-        {
-          context: ["/api"],
-          target: "http://localhost:3001",
-          secure: false,
-          changeOrigin: true
-        }
-      ]
+      proxy: [{ context: ["/api"], target: "http://localhost:3001", secure: false, changeOrigin: true }]
     }
   };
 };
