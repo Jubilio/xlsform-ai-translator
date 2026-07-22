@@ -1,6 +1,6 @@
 {
   "name": "xlsform-ai-translator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Office Add-in para traduzir questionários Kobo/XLSForm sem alterar códigos, fórmulas ou placeholders.",
   "license": "MIT",
@@ -21,6 +21,8 @@
     "validate:manifest": "npx --yes office-addin-manifest validate manifest.xml",
     "validate:manifest:production": "npx --yes office-addin-manifest validate manifest.production.xml",
     "manifest:production": "node scripts/generate-production-manifest.mjs",
+    "check:marketplace": "node scripts/check-marketplace-readiness.mjs",
+    "verify:release": "npm run check:marketplace && npm run typecheck && npm test && npm run build && npm run validate:manifest:production",
     "sideload": "npx --yes office-addin-debugging start manifest.xml desktop",
     "stop": "npx --yes office-addin-debugging stop manifest.xml",
     "start": "node dist-server/server/index.js",
