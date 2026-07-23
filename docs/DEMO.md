@@ -1,15 +1,15 @@
 # XLSForm AI Translator — Vídeo de demonstração
 
 <p align="center">
-  <a href="videos/xlsform-ai-translator-demo.mp4">
-    <img src="images/excel-task-pane.svg" alt="Abrir o vídeo de demonstração do XLSForm AI Translator" width="100%" />
+  <a href="https://www.youtube.com/watch?v=fkSzCGnISjM">
+    <img src="https://img.youtube.com/vi/fkSzCGnISjM/maxresdefault.jpg" alt="Ver o vídeo de demonstração do XLSForm AI Translator no YouTube" width="100%" />
   </a>
 </p>
 
 <p align="center">
-  <strong><a href="videos/xlsform-ai-translator-demo.mp4">▶ Ver o vídeo de demonstração</a></strong>
+  <strong><a href="https://www.youtube.com/watch?v=fkSzCGnISjM">▶ Ver o vídeo de demonstração no YouTube</a></strong>
 </p>
 
 A demonstração apresenta o suplemento em funcionamento dentro do Microsoft Excel, incluindo a selecção de idiomas e a tradução de conteúdo XLSForm.
 
-> O vídeo foi optimizado para carregamento rápido e visualização no GitHub. A gravação original tem maior resolução.
+Também está disponível uma [cópia optimizada no repositório](videos/xlsform-ai-translator-demo.mp4) para consulta directa no GitHub.
