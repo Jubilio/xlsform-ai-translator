@@ -493,7 +493,9 @@ async function handleXLSForm(): Promise<void> {
     const plan = await collectXLSFormPlan({
       sheetNames,
       sourceHeaderLanguage: source.headerName,
+      sourceLanguageCode: source.code,
       targetHeaderLanguage: target.headerName,
+      targetLanguageCode: target.code,
       overwriteExisting: element<HTMLInputElement>("overwrite-existing").checked
     });
     await translatePlan(plan);
@@ -510,10 +512,18 @@ async function analyseXLSForm(): Promise<void> {
   try {
     const source = selectedLanguage("source-language");
     const target = selectedLanguage("target-language");
+    const sheetNames = [
+      element<HTMLInputElement>("sheet-survey").checked ? "survey" : "",
+      element<HTMLInputElement>("sheet-choices").checked ? "choices" : "",
+      element<HTMLInputElement>("sheet-settings").checked ? "settings" : ""
+    ].filter(Boolean);
+    if (sheetNames.length === 0) throw new Error(t("selectSheet"));
     const plan = await collectXLSFormPlan({
-      sheetNames: ["survey", "choices"],
+      sheetNames,
       sourceHeaderLanguage: source.headerName,
+      sourceLanguageCode: source.code,
       targetHeaderLanguage: target.headerName,
+      targetLanguageCode: target.code,
       overwriteExisting: false
     });
     const newColumns = plan.columns.filter((column) => column.createTargetColumn).length;

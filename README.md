@@ -237,14 +237,19 @@ A tradução substitui o texto das células seleccionadas, mas mantém a sua for
 6. Reveja e edite as traduções propostas.
 7. Clique em **Aplicar traduções**.
 
-Exemplo de colunas:
+São reconhecidas as duas convenções comuns de cabeçalhos multilíngues:
 
 ```text
 label::English  ->  label::Portuguese
 hint::English   ->  hint::Portuguese
+
+label::English (en)  ->  label::Portuguese (pt)
+hint::English (en)   ->  hint::Portuguese (pt)
 ```
 
 Quando a coluna de destino não existe, o suplemento cria-a no fim da folha. Quando já existe, por padrão apenas as células vazias são preenchidas.
+
+Se a folha `settings` for seleccionada, o valor de `form_title` é traduzido na própria célula após a pré-visualização. Os campos técnicos `form_id`, `version` e `default_language` permanecem inalterados.
 
 ## Colunas traduzidas automaticamente
 
