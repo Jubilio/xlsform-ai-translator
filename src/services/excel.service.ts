@@ -32,7 +32,7 @@ function cellAddress(rowIndex: number, columnIndex: number): string {
   return `${columnToLetters(columnIndex)}${rowIndex + 1}`;
 }
 
-export async function collectSelectionPlan(): Promise<TranslationPlan> {
+export async function collectSelectionPlan(overwriteExisting = false): Promise<TranslationPlan> {
   return Excel.run(async (context) => {
     const range = context.workbook.getSelectedRange();
     range.load(["values", "formulas", "rowCount", "columnCount", "rowIndex", "columnIndex"]);
@@ -56,9 +56,9 @@ export async function collectSelectionPlan(): Promise<TranslationPlan> {
       row.some((formula) => isFormula(formula))
     );
 
-    if (targetHasContent || targetHasFormula) {
+    if (!overwriteExisting && (targetHasContent || targetHasFormula)) {
       throw new Error(
-        "O bloco de destino à direita da selecção já contém dados ou fórmulas. Limpe-o ou escolha outra selecção."
+        "O bloco de destino à direita da selecção já contém dados ou fórmulas. Active “Substituir traduções existentes” para substituí-lo, limpe-o ou escolha outra selecção."
       );
     }
 
