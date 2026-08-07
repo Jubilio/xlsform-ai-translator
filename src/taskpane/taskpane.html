@@ -123,6 +123,55 @@
       <button id="translate-xlsform" class="button primary" data-i18n="translateXlsform">Traduzir XLSForm</button>
       <button id="validate-xlsform" class="button ghost" data-i18n="analyseStructure">Analisar estrutura</button>
       <button id="toggle-template-builder" class="button ghost" data-i18n="templateBuilder">Criar modelo XLSForm</button>
+      <button id="toggle-reference-validator" class="button ghost" data-i18n="referenceValidator">Comparar com referência</button>
+    </section>
+
+    <section id="reference-validator" class="card reference-validator hidden" aria-hidden="true">
+      <div class="section-heading">
+        <div>
+          <h2 data-i18n="referenceTitle">Comparar com referência</h2>
+          <p class="muted" data-i18n="referenceIntro">Compare o livro aberto com um XLSForm canónico. Conteúdo adicional é permitido.</p>
+        </div>
+        <button id="close-reference-validator" class="icon-button" type="button" title="Fechar" aria-label="Fechar">×</button>
+      </div>
+
+      <label>
+        <span data-i18n="referenceFile">XLSForm de referência</span>
+        <input id="reference-file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+      </label>
+
+      <fieldset class="language-fieldset">
+        <legend data-i18n="validationChecks">Verificações</legend>
+        <div class="validation-checks">
+          <label class="check"><input id="check-question-names" type="checkbox" checked /> <span data-i18n="checkQuestionNames">Perguntas obrigatórias</span></label>
+          <label class="check"><input id="check-list-names" type="checkbox" checked /> <span data-i18n="checkListNames">Listas definidas</span></label>
+          <label class="check"><input id="check-survey-list-names" type="checkbox" checked /> <span data-i18n="checkSurveyLists">Listas utilizadas no survey</span></label>
+          <label class="check"><input id="check-choices" type="checkbox" checked /> <span data-i18n="checkChoices">Opções das listas</span></label>
+          <label class="check"><input id="check-question-types" type="checkbox" checked /> <span data-i18n="checkQuestionTypes">Tipo e lista por pergunta</span></label>
+        </div>
+      </fieldset>
+
+      <label>
+        <span data-i18n="passingLists">Listas ignoradas na comparação de opções</span>
+        <textarea id="passing-lists" rows="3" data-i18n-placeholder="passingListsPlaceholder" placeholder="admin1, admin2, enumerators"></textarea>
+      </label>
+
+      <div class="template-actions">
+        <button id="compare-reference" class="button primary" data-i18n="compareNow">Comparar agora</button>
+        <button id="export-validation-report" class="button secondary" data-i18n="exportReport" disabled>Guardar relatório</button>
+      </div>
+      <p class="small muted attribution" data-i18n="idemAttribution">Modelo de comparação inspirado no pacote idem (IMPACT Initiatives, licença MIT).</p>
+    </section>
+
+    <section id="validation-results-card" class="card hidden" aria-live="polite">
+      <div class="section-heading">
+        <div>
+          <h2 data-i18n="validationResults">Resultado da validação</h2>
+          <p id="validation-summary" class="muted"></p>
+        </div>
+        <button id="close-validation-results" class="icon-button" type="button" title="Fechar" aria-label="Fechar">×</button>
+      </div>
+      <div id="validation-results" class="validation-results"></div>
     </section>
 
     <section id="template-builder" class="card template-builder hidden" aria-hidden="true">

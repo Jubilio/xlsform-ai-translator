@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.2-0f766e" alt="Version 1.2.2" />
+  <img src="https://img.shields.io/badge/version-1.3.0-0f766e" alt="Version 1.3.0" />
   <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&amp;logoColor=white" alt="TypeScript 5.8" />
   <img src="https://img.shields.io/badge/Microsoft%20Excel-Office%20Add--in-217346?logo=microsoftexcel&amp;logoColor=white" alt="Microsoft Excel Office Add-in" />
   <img src="https://img.shields.io/badge/Node.js-%3E%3D20-339933?logo=nodedotjs&amp;logoColor=white" alt="Node.js 20 or later" />
@@ -45,6 +45,8 @@ O suplemento permite começar um XLSForm do zero, acrescentar idiomas a um formu
 - Cabeçalhos multilíngues no formato `Nome + código` ou `Apenas nome`.
 - Adição segura de colunas de idioma a XLSForms existentes, sem duplicar convenções equivalentes.
 - Verificação prévia das três folhas antes da criação, evitando escritas parciais ou perda de dados.
+- Comparação do formulário aberto com um XLSForm canónico para detectar alterações ou conteúdo obrigatório ausente.
+- Relatório navegável de validação e exportação para a folha `_validation_report`.
 - Tradução da célula ou do intervalo actualmente seleccionado.
 - Tradução automática das folhas `survey` e `choices` e do `form_title` em `settings`.
 - Criação de colunas como `label::Portuguese`, sem apagar `label::English`.
@@ -240,6 +242,7 @@ Depois de alterar `.env`, reinicie `npm run dev`.
 | **Criar modelo XLSForm** | Para começar um formulário novo | Cria `survey`, `choices` e `settings` com os cabeçalhos e idiomas seleccionados |
 | **Adicionar idiomas** | Para ampliar um XLSForm existente | Acrescenta apenas as colunas linguísticas ausentes e preserva os dados existentes |
 | **Analisar estrutura** | Antes de traduzir o formulário | Mostra idiomas reconhecidos, colunas a criar, células traduzíveis e células ignoradas |
+| **Comparar com referência** | Para validar uma adaptação contra um formulário canónico | Detecta perguntas, listas, opções e tipos obrigatórios ausentes ou alterados |
 | **Traduzir selecção** | Para traduzir células específicas | Gera uma pré-visualização editável do intervalo seleccionado |
 | **Traduzir XLSForm** | Para processar as folhas seleccionadas | Traduz colunas linguísticas e, quando seleccionado, `settings.form_title` |
 
@@ -283,6 +286,30 @@ A operação acrescenta as colunas `label`, `hint` e `constraint_message` ausent
 5. Clique em **Aplicar traduções**.
 
 A tradução escreve o resultado no bloco correspondente à direita da selecção e mantém a formatação. Fórmulas, números e células vazias na origem são ignorados. Se o bloco de destino já contiver dados ou fórmulas, active **Substituir traduções existentes** para substituir as células correspondentes; com a opção desactivada, o suplemento bloqueia a operação para proteger o conteúdo existente.
+
+### Comparar com um XLSForm de referência
+
+Utilize esta funcionalidade quando existe um formulário central ou canónico e pretende confirmar que uma adaptação local continua em conformidade.
+
+1. Abra no Excel o formulário local que pretende validar.
+2. Clique em **Comparar com referência**.
+3. Seleccione o ficheiro `.xlsx` canónico.
+4. Escolha as verificações que pretende executar.
+5. Se necessário, indique listas cujas opções podem variar, separadas por vírgula ou linha, como `admin1`, `admin2` e `enumerators`.
+6. Clique em **Comparar agora**.
+
+O formulário actual pode ter perguntas, listas e opções adicionais. A validação verifica se tudo o que a referência exige continua presente no formulário actual:
+
+- nomes das perguntas;
+- listas definidas em `choices`;
+- listas utilizadas pelos tipos `select_one` e `select_multiple` em `survey`;
+- opções obrigatórias dentro das listas partilhadas;
+- `type` e lista utilizados por cada pergunta partilhada;
+- existência das folhas `survey` e `choices`.
+
+Clique num problema para abrir a folha e seleccionar a célula relacionada. Utilize **Guardar relatório** para criar ou actualizar `_validation_report` com a severidade, verificação, folha, elemento, lista, célula e descrição do problema.
+
+O ficheiro de referência é lido localmente no painel do Excel e não é enviado ao servidor. O modelo de comparação é inspirado no pacote [`idem`](https://github.com/impact-initiatives/idem), desenvolvido pela IMPACT Initiatives e disponibilizado sob licença MIT.
 
 ### Traduzir um XLSForm completo
 

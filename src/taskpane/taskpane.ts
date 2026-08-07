@@ -8,12 +8,21 @@ import {
   createXLSFormTemplate
 } from "../services/excel.service";
 import { validateTranslation } from "../services/validation.service";
+import { readReferenceXLSForm } from "../services/reference-file.service";
+import { validateXLSFormAgainstReference } from "../services/xlsform-validation.service";
+import {
+  readCurrentXLSForm,
+  selectValidationIssue,
+  writeValidationReport
+} from "../services/validation-excel.service";
 import { getBuiltInGlossary } from "../utils/glossary";
 import { protectText, restoreText } from "../utils/protection";
 import type {
   LanguageOption,
   ProviderName,
-  TranslationPlan
+  TranslationPlan,
+  ValidationCheck,
+  XLSFormValidationIssue
 } from "../types";
 
 const LANGUAGES: LanguageOption[] = [
@@ -55,6 +64,29 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
     translateSelection: "Traduzir selecção",
     translateXlsform: "Traduzir XLSForm",
     analyseStructure: "Analisar estrutura",
+    referenceValidator: "Comparar com referência",
+    referenceTitle: "Comparar com referência",
+    referenceIntro: "Compare o livro aberto com um XLSForm canónico. Conteúdo adicional é permitido.",
+    referenceFile: "XLSForm de referência",
+    validationChecks: "Verificações",
+    checkQuestionNames: "Perguntas obrigatórias",
+    checkListNames: "Listas definidas",
+    checkSurveyLists: "Listas utilizadas no survey",
+    checkChoices: "Opções das listas",
+    checkQuestionTypes: "Tipo e lista por pergunta",
+    passingLists: "Listas ignoradas na comparação de opções",
+    passingListsPlaceholder: "admin1, admin2, enumerators",
+    compareNow: "Comparar agora",
+    exportReport: "Guardar relatório",
+    idemAttribution: "Modelo de comparação inspirado no pacote idem (IMPACT Initiatives, licença MIT).",
+    validationResults: "Resultado da validação",
+    selectReferenceFile: "Seleccione um ficheiro XLSForm de referência (.xlsx).",
+    readingReference: "A ler o formulário de referência…",
+    comparingForms: "A comparar os formulários…",
+    validationClean: "Nenhum problema encontrado. O formulário actual cumpre a referência.",
+    validationSummary: "{count} problemas encontrados; {errors} erros.",
+    reportSaved: "Relatório guardado na folha _validation_report.",
+    severityError: "Erro",
     templateBuilder: "Criar modelo XLSForm",
     templateTitle: "Criar modelo XLSForm",
     templateIntro: "Crie as folhas e cabeçalhos ou adicione idiomas sem substituir dados.",
@@ -143,6 +175,29 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
     translateSelection: "Translate selection",
     translateXlsform: "Translate XLSForm",
     analyseStructure: "Analyse structure",
+    referenceValidator: "Compare with reference",
+    referenceTitle: "Compare with reference",
+    referenceIntro: "Compare the open workbook with a canonical XLSForm. Additional content is allowed.",
+    referenceFile: "Reference XLSForm",
+    validationChecks: "Checks",
+    checkQuestionNames: "Required questions",
+    checkListNames: "Defined lists",
+    checkSurveyLists: "Lists referenced in survey",
+    checkChoices: "Choice options",
+    checkQuestionTypes: "Type and list per question",
+    passingLists: "Lists excluded from option comparison",
+    passingListsPlaceholder: "admin1, admin2, enumerators",
+    compareNow: "Compare now",
+    exportReport: "Save report",
+    idemAttribution: "Comparison model inspired by the idem package (IMPACT Initiatives, MIT licence).",
+    validationResults: "Validation result",
+    selectReferenceFile: "Select a reference XLSForm file (.xlsx).",
+    readingReference: "Reading the reference form…",
+    comparingForms: "Comparing forms…",
+    validationClean: "No issues found. The current form complies with the reference.",
+    validationSummary: "{count} issues found; {errors} errors.",
+    reportSaved: "Report saved to the _validation_report worksheet.",
+    severityError: "Error",
     templateBuilder: "Create XLSForm template",
     templateTitle: "Create XLSForm template",
     templateIntro: "Create worksheets and headers or add languages without replacing data.",
@@ -213,6 +268,7 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
 let interfaceLanguage: InterfaceLanguage = readStoredLanguage();
 let currentPlan: TranslationPlan | null = null;
 let currentProvider = "";
+let currentValidationIssues: XLSFormValidationIssue[] | null = null;
 
 function readStoredLanguage(): InterfaceLanguage {
   try {
@@ -327,12 +383,22 @@ function applyInterfaceLanguage(language: InterfaceLanguage): void {
     const key = node.dataset.i18n;
     if (key) node.textContent = t(key);
   });
+  document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[data-i18n-placeholder]").forEach((node) => {
+    const key = node.dataset.i18nPlaceholder;
+    if (key) node.placeholder = t(key);
+  });
 
   const settingsButton = element<HTMLButtonElement>("settings-button");
   settingsButton.title = t("settingsButton");
   settingsButton.setAttribute("aria-label", t("settingsButton"));
 
-  for (const id of ["close-settings", "close-template-builder", "clear-preview"]) {
+  for (const id of [
+    "close-settings",
+    "close-template-builder",
+    "close-reference-validator",
+    "close-validation-results",
+    "clear-preview"
+  ]) {
     const button = element<HTMLButtonElement>(id);
     button.title = t("close");
     button.setAttribute("aria-label", t("close"));
@@ -363,11 +429,19 @@ function setBusy(isBusy: boolean): void {
     "validate-xlsform",
     "apply-translations",
     "create-template",
-    "add-template-languages"
+    "add-template-languages",
+    "compare-reference"
   ]) {
     const button = document.getElementById(id) as HTMLButtonElement | null;
     if (button) button.disabled = isBusy;
   }
+}
+
+function toggleReferenceValidator(forceOpen?: boolean): void {
+  const panel = element("reference-validator");
+  const shouldOpen = forceOpen ?? panel.classList.contains("hidden");
+  panel.classList.toggle("hidden", !shouldOpen);
+  panel.setAttribute("aria-hidden", String(!shouldOpen));
 }
 
 function toggleTemplateBuilder(forceOpen?: boolean): void {
@@ -716,6 +790,115 @@ async function analyseXLSForm(): Promise<void> {
   }
 }
 
+function selectedValidationChecks(): ValidationCheck[] {
+  const configured: Array<[string, ValidationCheck]> = [
+    ["check-question-names", "question_names"],
+    ["check-list-names", "list_names"],
+    ["check-survey-list-names", "survey_list_names"],
+    ["check-choices", "choices"],
+    ["check-question-types", "question_types"]
+  ];
+  return [
+    "structure",
+    ...configured
+      .filter(([id]) => element<HTMLInputElement>(id).checked)
+      .map(([, check]) => check)
+  ];
+}
+
+function passingValidationLists(): string[] {
+  return element<HTMLTextAreaElement>("passing-lists").value
+    .split(/[,;\n]+/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function renderValidationResults(issues: XLSFormValidationIssue[]): void {
+  const card = element("validation-results-card");
+  const container = element("validation-results");
+  const errors = issues.filter((issue) => issue.severity === "error").length;
+  container.replaceChildren();
+  element("validation-summary").textContent = issues.length === 0
+    ? t("validationClean")
+    : t("validationSummary", { count: issues.length, errors });
+
+  if (issues.length === 0) {
+    const clean = document.createElement("div");
+    clean.className = "validation-empty";
+    clean.textContent = t("validationClean");
+    container.appendChild(clean);
+  } else {
+    issues.forEach((issue) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "validation-issue";
+      const title = document.createElement("span");
+      title.className = "validation-issue-title";
+      const badge = document.createElement("span");
+      badge.className = `severity-badge severity-${issue.severity}`;
+      badge.textContent = issue.severity === "error" ? t("severityError") : issue.severity;
+      const location = document.createElement("span");
+      location.textContent = `${issue.sheetName} · ${issue.name}`;
+      const detail = document.createElement("span");
+      detail.className = "validation-issue-detail";
+      detail.textContent = issue.detail;
+      title.append(badge, location);
+      button.append(title, detail);
+      button.addEventListener("click", async () => {
+        try {
+          await selectValidationIssue(issue);
+        } catch (error) {
+          showError(error);
+        }
+      });
+      container.appendChild(button);
+    });
+  }
+  card.classList.remove("hidden");
+}
+
+async function handleReferenceComparison(): Promise<void> {
+  setBusy(true);
+  clearResult();
+  try {
+    const file = element<HTMLInputElement>("reference-file").files?.[0];
+    if (!file) throw new Error(t("selectReferenceFile"));
+    showProgress(t("readingReference"), 0, 2);
+    const [reference, current] = await Promise.all([
+      readReferenceXLSForm(file),
+      readCurrentXLSForm()
+    ]);
+    showProgress(t("comparingForms"), 1, 2);
+    currentValidationIssues = validateXLSFormAgainstReference(reference, current, {
+      checks: selectedValidationChecks(),
+      passingLists: passingValidationLists(),
+      language: interfaceLanguage
+    });
+    renderValidationResults(currentValidationIssues);
+    element<HTMLButtonElement>("export-validation-report").disabled = false;
+    hideProgress();
+  } catch (error) {
+    showError(error);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function exportValidationReport(): Promise<void> {
+  if (!currentValidationIssues) return;
+  setBusy(true);
+  try {
+    showProgress(t("writingExcel"), 0, 1);
+    await writeValidationReport(currentValidationIssues);
+    showResult(`<strong>${escapeHtml(t("reportSaved"))}</strong>`);
+    window.setTimeout(hideProgress, 800);
+  } catch (error) {
+    showError(error);
+  } finally {
+    setBusy(false);
+  }
+}
+
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
@@ -750,6 +933,13 @@ Office.onReady((info) => {
   element<HTMLButtonElement>("translate-selection").addEventListener("click", handleSelection);
   element<HTMLButtonElement>("translate-xlsform").addEventListener("click", handleXLSForm);
   element<HTMLButtonElement>("validate-xlsform").addEventListener("click", analyseXLSForm);
+  element<HTMLButtonElement>("toggle-reference-validator").addEventListener("click", () => toggleReferenceValidator());
+  element<HTMLButtonElement>("close-reference-validator").addEventListener("click", () => toggleReferenceValidator(false));
+  element<HTMLButtonElement>("compare-reference").addEventListener("click", handleReferenceComparison);
+  element<HTMLButtonElement>("export-validation-report").addEventListener("click", exportValidationReport);
+  element<HTMLButtonElement>("close-validation-results").addEventListener("click", () => {
+    element("validation-results-card").classList.add("hidden");
+  });
   element<HTMLButtonElement>("toggle-template-builder").addEventListener("click", () => toggleTemplateBuilder());
   element<HTMLButtonElement>("close-template-builder").addEventListener("click", () => toggleTemplateBuilder(false));
   element<HTMLSelectElement>("template-primary-language").addEventListener("change", updateTemplatePrimaryLanguage);
