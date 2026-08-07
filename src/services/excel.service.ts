@@ -7,6 +7,15 @@ import {
   normaliseHeader,
   targetHeaderFor
 } from "./xlsform.service";
+import {
+  buildChoicesHeaders,
+  buildSettingsHeaders,
+  buildSurveyHeaders,
+  languageDisplay,
+  missingLanguageHeaders,
+  type HeaderStyle,
+  type TemplateLanguage
+} from "./template.service";
 
 function columnToLetters(columnIndex: number): string {
   let n = columnIndex + 1;
@@ -108,6 +117,183 @@ interface XLSFormOptions {
   targetHeaderLanguage: string;
   targetLanguageCode?: string;
   overwriteExisting: boolean;
+}
+
+export interface XLSFormTemplateOptions {
+  languages: TemplateLanguage[];
+  primaryLanguage: TemplateLanguage;
+  headerStyle: HeaderStyle;
+  formTitle: string;
+  formId: string;
+}
+
+export interface XLSFormTemplateResult {
+  createdSheets: string[];
+  addedColumns: number;
+  skippedColumns: number;
+}
+
+function hasCellContent(values: unknown[][]): boolean {
+  return values.some((row) => row.some((value) =>
+    value !== null && value !== undefined && String(value).trim() !== ""
+  ));
+}
+
+function templateVersion(): string {
+  const now = new Date();
+  const parts = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+    String(now.getHours()).padStart(2, "0"),
+    String(now.getMinutes()).padStart(2, "0"),
+    String(now.getSeconds()).padStart(2, "0")
+  ];
+  return parts.join("");
+}
+
+function formatTemplateRange(range: Excel.Range): void {
+  range.format.font.bold = true;
+  range.format.fill.color = "#176B62";
+  range.format.font.color = "#FFFFFF";
+  range.format.wrapText = true;
+  range.format.autofitColumns();
+}
+
+export async function createXLSFormTemplate(
+  options: XLSFormTemplateOptions
+): Promise<XLSFormTemplateResult> {
+  return Excel.run(async (context) => {
+    const sheetNames = ["survey", "choices", "settings"];
+    const inspected: Array<{
+      name: string;
+      worksheet: Excel.Worksheet;
+      exists: boolean;
+      hasContent: boolean;
+    }> = [];
+
+    for (const name of sheetNames) {
+      const worksheet = context.workbook.worksheets.getItemOrNullObject(name);
+      worksheet.load("isNullObject");
+      await context.sync();
+      if (worksheet.isNullObject) {
+        inspected.push({ name, worksheet, exists: false, hasContent: false });
+        continue;
+      }
+
+      const usedRange = worksheet.getUsedRangeOrNullObject(true);
+      usedRange.load(["isNullObject", "values"]);
+      await context.sync();
+      inspected.push({
+        name,
+        worksheet,
+        exists: true,
+        hasContent: !usedRange.isNullObject && hasCellContent(usedRange.values)
+      });
+    }
+
+    const occupied = inspected.filter((item) => item.hasContent).map((item) => item.name);
+    if (occupied.length > 0) {
+      throw new Error(
+        `As folhas já contêm dados: ${occupied.join(", ")}. Use “Adicionar idiomas” para preservar o conteúdo existente.`
+      );
+    }
+
+    const headersBySheet: Record<string, string[]> = {
+      survey: buildSurveyHeaders(options.languages, options.headerStyle),
+      choices: buildChoicesHeaders(options.languages, options.headerStyle),
+      settings: buildSettingsHeaders()
+    };
+    const createdSheets: string[] = [];
+
+    for (const item of inspected) {
+      const worksheet = item.exists
+        ? item.worksheet
+        : context.workbook.worksheets.add(item.name);
+      if (!item.exists) createdSheets.push(item.name);
+
+      const headers = headersBySheet[item.name] || [];
+      if (headers.length === 0) throw new Error(`Estrutura não definida para ${item.name}.`);
+      const headerRange = worksheet.getRangeByIndexes(0, 0, 1, headers.length);
+      headerRange.values = [headers];
+      formatTemplateRange(headerRange);
+
+      if (item.name === "settings") {
+        worksheet.getRangeByIndexes(1, 0, 1, 4).values = [[
+          options.formTitle,
+          options.formId,
+          templateVersion(),
+          languageDisplay(options.primaryLanguage, options.headerStyle)
+        ]];
+        worksheet.getUsedRange().format.autofitColumns();
+      }
+    }
+
+    await context.sync();
+    return {
+      createdSheets,
+      addedColumns: Object.values(headersBySheet).reduce((sum, headers) => sum + headers.length, 0),
+      skippedColumns: 0
+    };
+  });
+}
+
+export async function addLanguagesToXLSForm(
+  languages: TemplateLanguage[],
+  headerStyle: HeaderStyle
+): Promise<XLSFormTemplateResult> {
+  return Excel.run(async (context) => {
+    const specifications = [
+      { name: "survey", fields: ["label", "hint", "constraint_message"] },
+      { name: "choices", fields: ["label"] }
+    ];
+    let addedColumns = 0;
+    let skippedColumns = 0;
+
+    for (const specification of specifications) {
+      const worksheet = context.workbook.worksheets.getItemOrNullObject(specification.name);
+      worksheet.load("isNullObject");
+      await context.sync();
+      if (worksheet.isNullObject) {
+        throw new Error(
+          `A folha ${specification.name} não existe. Use “Criar modelo” primeiro.`
+        );
+      }
+
+      const usedRange = worksheet.getUsedRangeOrNullObject(true);
+      usedRange.load(["isNullObject", "values", "columnCount"]);
+      await context.sync();
+      if (usedRange.isNullObject || usedRange.values.length === 0) {
+        throw new Error(
+          `A folha ${specification.name} está vazia. Use “Criar modelo” primeiro.`
+        );
+      }
+
+      const existingHeaders = (usedRange.values[0] || []).map(normaliseHeader);
+      const missing = missingLanguageHeaders(
+        existingHeaders,
+        specification.fields,
+        languages,
+        headerStyle
+      );
+      const expected = specification.fields.length * languages.length;
+      skippedColumns += expected - missing.length;
+      if (missing.length === 0) continue;
+
+      const targetRange = worksheet.getRangeByIndexes(
+        0,
+        usedRange.columnCount,
+        1,
+        missing.length
+      );
+      targetRange.values = [missing];
+      formatTemplateRange(targetRange);
+      addedColumns += missing.length;
+    }
+
+    await context.sync();
+    return { createdSheets: [], addedColumns, skippedColumns };
+  });
 }
 
 export async function collectXLSFormPlan(options: XLSFormOptions): Promise<TranslationPlan> {
