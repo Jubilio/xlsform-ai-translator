@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Instalador automático para configurar um Trusted Add-in Catalog no Excel Desktop para Windows.
+- Suporte a cabeçalhos XLSForm com ou sem códigos de idioma, como `label::English` e `label::English (en)`.
+- Tradução opcional de `settings.form_title`, preservando os campos técnicos da folha.
+
 ## 1.0.0 — 2026-07-21
 
 - Tradução de selecção e de XLSForm completo.
