@@ -122,6 +122,50 @@
       <button id="translate-selection" class="button secondary" data-i18n="translateSelection">Traduzir selecção</button>
       <button id="translate-xlsform" class="button primary" data-i18n="translateXlsform">Traduzir XLSForm</button>
       <button id="validate-xlsform" class="button ghost" data-i18n="analyseStructure">Analisar estrutura</button>
+      <button id="toggle-template-builder" class="button ghost" data-i18n="templateBuilder">Criar modelo XLSForm</button>
+    </section>
+
+    <section id="template-builder" class="card template-builder hidden" aria-hidden="true">
+      <div class="section-heading">
+        <div>
+          <h2 data-i18n="templateTitle">Criar modelo XLSForm</h2>
+          <p class="muted" data-i18n="templateIntro">Crie as folhas e cabeçalhos ou adicione idiomas sem substituir dados.</p>
+        </div>
+        <button id="close-template-builder" class="icon-button" type="button" title="Fechar" aria-label="Fechar">×</button>
+      </div>
+
+      <div class="grid two-columns">
+        <label>
+          <span data-i18n="primaryLanguage">Idioma principal</span>
+          <select id="template-primary-language"></select>
+        </label>
+        <label>
+          <span data-i18n="headerFormat">Formato dos cabeçalhos</span>
+          <select id="template-header-style">
+            <option value="name-code" data-i18n="headerNameCode">Nome + código</option>
+            <option value="name" data-i18n="headerNameOnly">Apenas nome</option>
+          </select>
+        </label>
+      </div>
+
+      <fieldset class="language-fieldset">
+        <legend data-i18n="templateLanguages">Idiomas do modelo</legend>
+        <div id="template-language-options" class="checkbox-row"></div>
+      </fieldset>
+
+      <label>
+        <span data-i18n="formTitle">Título do formulário</span>
+        <input id="template-form-title" type="text" value="Novo XLSForm" />
+      </label>
+      <label>
+        <span data-i18n="formId">ID do formulário</span>
+        <input id="template-form-id" type="text" value="novo_xlsform" spellcheck="false" />
+      </label>
+
+      <div class="template-actions">
+        <button id="create-template" class="button primary" data-i18n="createTemplate">Criar modelo</button>
+        <button id="add-template-languages" class="button secondary" data-i18n="addLanguages">Adicionar idiomas</button>
+      </div>
     </section>
 
     <section id="progress-card" class="card hidden" aria-live="polite">
