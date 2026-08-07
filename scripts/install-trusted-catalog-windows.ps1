@@ -1,12 +1,23 @@
 [CmdletBinding()]
 param(
-    [string]$ManifestPath = (Join-Path $PSScriptRoot "..\manifest.production.xml"),
+    [string]$ManifestPath,
     [string]$CatalogFolder = "C:\OfficeAddins",
     [string]$ShareName = "OfficeAddins"
 )
 
 $ErrorActionPreference = "Stop"
 $CatalogId = "{B47E42F1-74A8-4E85-9A76-7B1885E2A169}"
+$scriptPath = $MyInvocation.MyCommand.Path
+
+if ([string]::IsNullOrWhiteSpace($scriptPath)) {
+    throw "Nao foi possivel determinar o caminho do instalador. Execute o ficheiro INSTALL_TRUSTED_CATALOG_WINDOWS.bat."
+}
+
+if ([string]::IsNullOrWhiteSpace($ManifestPath)) {
+    $scriptDirectory = Split-Path -Parent $scriptPath
+    $projectDirectory = Split-Path -Parent $scriptDirectory
+    $ManifestPath = Join-Path $projectDirectory "manifest.production.xml"
+}
 
 function Test-IsAdministrator {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -30,7 +41,7 @@ if (Get-Process -Name "EXCEL" -ErrorAction SilentlyContinue) {
 if (-not (Test-IsAdministrator)) {
     Write-Host "A solicitar permissao de Administrador..." -ForegroundColor Yellow
     $arguments = "-NoProfile -ExecutionPolicy Bypass " +
-        "-File `"$PSCommandPath`" " +
+        "-File `"$scriptPath`" " +
         "-ManifestPath `"$ManifestPath`" " +
         "-CatalogFolder `"$CatalogFolder`" " +
         "-ShareName `"$ShareName`""
