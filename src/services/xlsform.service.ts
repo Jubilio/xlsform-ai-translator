@@ -6,6 +6,15 @@ const TRANSLATABLE_PREFIXES = [
   "constraint_message"
 ];
 
+const LANGUAGE_CODES: Record<string, string> = {
+  english: "en",
+  portuguese: "pt",
+  french: "fr",
+  arabic: "ar",
+  spanish: "es",
+  swahili: "sw"
+};
+
 export const PROTECTED_HEADERS = [
   "type",
   "name",
@@ -32,18 +41,54 @@ export function normaliseHeader(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-export function isTranslatableHeader(header: string, sourceHeaderLanguage: string): boolean {
-  const normalised = header.trim().toLowerCase();
-  const suffix = `::${sourceHeaderLanguage.trim().toLowerCase()}`;
-  if (!normalised.endsWith(suffix)) return false;
-  const prefix = normalised.slice(0, -suffix.length);
+function languageSuffixPattern(language: string, code?: string): RegExp {
+  const escapedLanguage = language.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const resolvedCode = code?.trim() || LANGUAGE_CODES[language.trim().toLowerCase()];
+  const optionalCode = resolvedCode
+    ? `(?:\\s*\\(${resolvedCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\))?`
+    : "";
+  return new RegExp(`::\\s*${escapedLanguage}${optionalCode}\\s*$`, "i");
+}
+
+export function isTranslatableHeader(
+  header: string,
+  sourceHeaderLanguage: string,
+  sourceLanguageCode?: string
+): boolean {
+  const suffix = languageSuffixPattern(sourceHeaderLanguage, sourceLanguageCode);
+  const match = header.trim().match(suffix);
+  if (!match || match.index === undefined) return false;
+  const prefix = header.trim().slice(0, match.index).toLowerCase();
   return TRANSLATABLE_PREFIXES.includes(prefix);
 }
 
-export function targetHeaderFor(sourceHeader: string, targetHeaderLanguage: string): string {
+export function targetHeaderFor(
+  sourceHeader: string,
+  targetHeaderLanguage: string,
+  targetLanguageCode?: string
+): string {
   const separatorIndex = sourceHeader.indexOf("::");
   const prefix = separatorIndex >= 0 ? sourceHeader.slice(0, separatorIndex) : sourceHeader;
-  return `${prefix}::${targetHeaderLanguage}`;
+  const sourceUsesCode = /\s*\([a-z]{2,3}(?:-[a-z0-9]+)?\)\s*$/i.test(sourceHeader);
+  const resolvedCode = targetLanguageCode?.trim()
+    || LANGUAGE_CODES[targetHeaderLanguage.trim().toLowerCase()];
+  const codeSuffix = sourceUsesCode && resolvedCode ? ` (${resolvedCode})` : "";
+  return `${prefix}::${targetHeaderLanguage}${codeSuffix}`;
+}
+
+export function equivalentTargetHeaders(
+  sourceHeader: string,
+  targetHeaderLanguage: string,
+  targetLanguageCode?: string
+): string[] {
+  const preferred = targetHeaderFor(sourceHeader, targetHeaderLanguage, targetLanguageCode);
+  const separatorIndex = sourceHeader.indexOf("::");
+  const prefix = separatorIndex >= 0 ? sourceHeader.slice(0, separatorIndex) : sourceHeader;
+  const resolvedCode = targetLanguageCode?.trim()
+    || LANGUAGE_CODES[targetHeaderLanguage.trim().toLowerCase()];
+  const alternatives = [`${prefix}::${targetHeaderLanguage}`];
+  if (resolvedCode) alternatives.push(`${prefix}::${targetHeaderLanguage} (${resolvedCode})`);
+  return [...new Set([preferred, ...alternatives])];
 }
 
 export function shouldNeverTranslateHeader(header: string): boolean {
