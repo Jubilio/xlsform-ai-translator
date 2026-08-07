@@ -19,7 +19,7 @@ module.exports = (_env, argv) => {
     },
     output: {
       path: path.resolve(__dirname, "dist"),
-      filename: "[name].js",
+      filename: isDevelopment ? "[name].js" : "[name].[contenthash:8].js",
       clean: true
     },
     devtool: isDevelopment ? "source-map" : false,
