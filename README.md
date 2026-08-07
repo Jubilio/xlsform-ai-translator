@@ -5,15 +5,15 @@
 <h1 align="center">XLSForm AI Translator</h1>
 
 <p align="center">
-  <strong>Traduza questionários KoboToolbox/XLSForm directamente no Microsoft Excel, preservando fórmulas, variáveis, placeholders, formatação e a lógica do formulário.</strong>
+  <strong>Crie, amplie e traduza questionários KoboToolbox/XLSForm directamente no Microsoft Excel, preservando fórmulas, variáveis, placeholders, formatação e a lógica do formulário.</strong>
 </p>
 
 <p align="center">
-  <em>Translate KoboToolbox/XLSForm questionnaires directly inside Microsoft Excel while preserving formulas, variables, placeholders, formatting and form logic.</em>
+  <em>Create, extend and translate KoboToolbox/XLSForm questionnaires directly inside Microsoft Excel while preserving formulas, variables, placeholders, formatting and form logic.</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-0f766e" alt="Version 1.0.0" />
+  <img src="https://img.shields.io/badge/version-1.2.1-0f766e" alt="Version 1.2.1" />
   <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&amp;logoColor=white" alt="TypeScript 5.8" />
   <img src="https://img.shields.io/badge/Microsoft%20Excel-Office%20Add--in-217346?logo=microsoftexcel&amp;logoColor=white" alt="Microsoft Excel Office Add-in" />
   <img src="https://img.shields.io/badge/Node.js-%3E%3D20-339933?logo=nodedotjs&amp;logoColor=white" alt="Node.js 20 or later" />
@@ -23,7 +23,7 @@
 
 > **Concebido para equipas humanitárias, organizações não-governamentais, instituições públicas, universidades, investigadores e profissionais de Monitoria e Avaliação.**
 
-O suplemento traduz conteúdos linguísticos de um XLSForm sem alterar os elementos técnicos que fazem o formulário funcionar. Pode traduzir uma selecção de células ou criar automaticamente novas colunas de idioma nas folhas `survey` e `choices`.
+O suplemento permite começar um XLSForm do zero, acrescentar idiomas a um formulário existente e traduzir o seu conteúdo linguístico sem alterar os elementos técnicos que o fazem funcionar. Pode traduzir uma selecção de células, criar automaticamente novas colunas de idioma nas folhas `survey` e `choices` e traduzir o título na folha `settings`.
 
 ## Interface
 
@@ -42,9 +42,11 @@ O suplemento traduz conteúdos linguísticos de um XLSForm sem alterar os elemen
 ## Principais funcionalidades
 
 - Criação automática das folhas `survey`, `choices` e `settings` com idiomas configuráveis.
+- Cabeçalhos multilíngues no formato `Nome + código` ou `Apenas nome`.
 - Adição segura de colunas de idioma a XLSForms existentes, sem duplicar convenções equivalentes.
+- Verificação prévia das três folhas antes da criação, evitando escritas parciais ou perda de dados.
 - Tradução da célula ou do intervalo actualmente seleccionado.
-- Tradução automática das folhas `survey` e `choices`.
+- Tradução automática das folhas `survey` e `choices` e do `form_title` em `settings`.
 - Criação de colunas como `label::Portuguese`, sem apagar `label::English`.
 - Preservação de `${variáveis}`, HTML, URLs, quebras de linha e placeholders.
 - Protecção de fórmulas, nomes de variáveis e lógica condicional.
@@ -78,14 +80,12 @@ O suplemento traduz conteúdos linguísticos de um XLSForm sem alterar os elemen
 ## Arquitectura
 
 ```mermaid
-flowchart LR
-    A[Microsoft Excel] --> B[Office Add-in<br/>Task Pane]
-    B --> C[Express Backend]
-    C --> D{Translation provider}
-    D --> E[OpenAI]
-    D --> F[DeepL]
-    D --> G[Microsoft Translator]
-    C --> H[Mock mode]
+flowchart TD
+    A[Microsoft Excel] --> B[Office Add-in]
+    B --> C[Criar ou ampliar XLSForm]
+    B --> D[Traduzir conteúdo]
+    D --> E[Express Backend]
+    E --> F[OpenAI, DeepL, Microsoft ou Mock]
 ```
 
 As chaves de API permanecem no backend e nunca são expostas ao código executado dentro do Excel.
@@ -93,7 +93,7 @@ As chaves de API permanecem no backend e nunca são expostas ao código executad
 ## Requisitos
 
 - Windows 10/11, macOS ou Excel para a Web.
-- Microsoft Excel com suporte a Office Add-ins.
+- Microsoft Excel com suporte a Office Add-ins e ao requisito `ExcelApi 1.4`.
 - Node.js 20 ou superior; Node.js 22 é recomendado.
 - VS Code é recomendado, mas não obrigatório.
 
@@ -233,6 +233,16 @@ Depois de alterar `.env`, reinicie `npm run dev`.
 
 ## Como utilizar
 
+### Fluxos principais
+
+| Acção | Quando utilizar | Resultado |
+| --- | --- | --- |
+| **Criar modelo XLSForm** | Para começar um formulário novo | Cria `survey`, `choices` e `settings` com os cabeçalhos e idiomas seleccionados |
+| **Adicionar idiomas** | Para ampliar um XLSForm existente | Acrescenta apenas as colunas linguísticas ausentes e preserva os dados existentes |
+| **Analisar estrutura** | Antes de traduzir o formulário | Mostra idiomas reconhecidos, colunas a criar, células traduzíveis e células ignoradas |
+| **Traduzir selecção** | Para traduzir células específicas | Gera uma pré-visualização editável do intervalo seleccionado |
+| **Traduzir XLSForm** | Para processar as folhas seleccionadas | Traduz colunas linguísticas e, quando seleccionado, `settings.form_title` |
+
 ### Criar um modelo XLSForm
 
 1. Clique em **Criar modelo XLSForm**.
@@ -241,7 +251,28 @@ Depois de alterar `.env`, reinicie `npm run dev`.
 4. Introduza `form_title` e `form_id`.
 5. Clique em **Criar modelo**.
 
-O suplemento cria `survey`, `choices` e `settings`. Se alguma dessas folhas já contiver dados, a criação é cancelada antes de escrever qualquer conteúdo. Para um formulário existente, utilize **Adicionar idiomas**; apenas os cabeçalhos ausentes são acrescentados.
+Por padrão, o criador inicia com Português como idioma principal e Inglês como idioma adicional. Também estão disponíveis Francês, Árabe, Espanhol e Suaíli.
+
+O suplemento cria a seguinte estrutura:
+
+| Folha | Cabeçalhos criados |
+| --- | --- |
+| `survey` | `Module`, `type`, `name`, `label::<idioma>`, `hint::<idioma>`, `relevant`, `required`, `constraint`, `constraint_message::<idioma>`, `repeat`, `calculation`, `choice_filter`, `parameters`, `appearance` |
+| `choices` | `list_name`, `name`, `label::<idioma>`, `filter_admin1`, `filter_admin2`, `order`, `visible`, `filter_2` |
+| `settings` | `form_title`, `form_id`, `version`, `default_language` |
+
+O idioma principal é sempre colocado antes dos idiomas adicionais. No formato **Nome + código**, por exemplo, são criados `label::Portuguese (pt)` e `label::English (en)`; no formato **Apenas nome**, são criados `label::Portuguese` e `label::English`.
+
+Antes de escrever, o suplemento verifica `survey`, `choices` e `settings`. Se alguma dessas folhas já contiver dados, toda a criação é cancelada, sem deixar o livro parcialmente alterado.
+
+### Adicionar idiomas a um XLSForm existente
+
+1. Clique em **Criar modelo XLSForm** para abrir o criador.
+2. Seleccione os idiomas que pretende acrescentar.
+3. Escolha o formato dos cabeçalhos.
+4. Clique em **Adicionar idiomas**.
+
+A operação acrescenta as colunas `label`, `hint` e `constraint_message` ausentes em `survey` e a coluna `label` ausente em `choices`. Os dados e a ordem das colunas existentes são preservados. Cabeçalhos equivalentes com ou sem código — por exemplo, `label::Portuguese` e `label::Portuguese (pt)` — são reconhecidos para evitar duplicações.
 
 ### Traduzir células seleccionadas
 
@@ -331,6 +362,7 @@ No modo `mock`, algumas frases comuns são traduzidas e as restantes recebem o p
 
 ```powershell
 npm run validate:manifest
+npm run validate:manifest:production
 npm run typecheck
 npm test
 npm run build
@@ -381,7 +413,19 @@ O fluxo pode ser testado localmente no modo `mock`. Uma tradução real através
 
 Não. As chaves são utilizadas exclusivamente pelo backend.
 
-## Limitações da versão 1.0
+### É possível criar um XLSForm do zero?
+
+Sim. Utilize **Criar modelo XLSForm** para gerar as folhas e os cabeçalhos necessários com os idiomas seleccionados.
+
+### O criador pode apagar um formulário existente?
+
+Não. Se `survey`, `choices` ou `settings` já contiver dados, a criação é cancelada antes de qualquer escrita. Para ampliar o formulário, utilize **Adicionar idiomas**.
+
+### Posso usar cabeçalhos com e sem código de idioma?
+
+Sim. O suplemento suporta tanto `label::Portuguese (pt)` como `label::Portuguese` e evita criar uma segunda coluna quando encontra uma variante equivalente.
+
+## Limitações actuais
 
 - O glossário incorporado é mais completo para Inglês → Português.
 - DeepL e Microsoft Translator podem não suportar todos os idiomas apresentados.
