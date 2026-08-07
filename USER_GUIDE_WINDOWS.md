@@ -194,6 +194,18 @@ required_message::English
 constraint_message::English
 ```
 
+### Criar ou completar a estrutura do XLSForm
+
+Clique em **Criar modelo XLSForm** para:
+
+- criar automaticamente as folhas `survey`, `choices` e `settings`;
+- escolher o idioma principal e idiomas adicionais;
+- usar cabeçalhos com código, como `label::Portuguese (pt)`, ou sem código;
+- preencher `form_title`, `form_id`, `version` e `default_language`;
+- adicionar idiomas a um XLSForm existente sem duplicar colunas equivalentes.
+
+O modo **Criar modelo** não substitui folhas que já contenham dados. Nesse caso, utilize **Adicionar idiomas**.
+
 ### Procedimento
 
 1. Escolha o idioma de origem.
