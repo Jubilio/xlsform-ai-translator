@@ -43,6 +43,10 @@ select, textarea, input[type="text"], input[type="password"] {
   display: block; width: 100%; margin-top: 5px; border: 1px solid #c9d5d9;
   border-radius: 7px; padding: 8px; background: white; color: #17212b;
 }
+input[type="file"] {
+  display: block; width: 100%; margin-top: 5px; border: 1px dashed #aebfc4;
+  border-radius: 7px; padding: 8px; background: #f8fafb; color: #34434d;
+}
 select:focus, textarea:focus, input[type="text"]:focus, input[type="password"]:focus {
   outline: 2px solid rgba(23, 107, 98, .25); border-color: #176b62;
 }
@@ -52,6 +56,21 @@ input[type="checkbox"] { accent-color: #176b62; }
 .actions-card { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .actions-card .ghost { grid-column: 1 / -1; }
 .template-builder { border-color: #bdd7d3; }
+.reference-validator { border-color: #b8ccdf; }
+.validation-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.attribution { margin: 10px 0 0; }
+.validation-results { max-height: 430px; overflow: auto; }
+.validation-issue {
+  width: 100%; text-align: left; border: 0; border-top: 1px solid #e7ecee;
+  padding: 10px 4px; background: white; color: #25343d; cursor: pointer;
+}
+.validation-issue:first-child { border-top: 0; }
+.validation-issue:hover { background: #f5f8f8; }
+.validation-issue-title { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; }
+.validation-issue-detail { display: block; margin-top: 4px; font-size: 11px; line-height: 1.4; color: #5d6b74; }
+.severity-badge { border-radius: 999px; padding: 2px 6px; font-size: 9px; text-transform: uppercase; }
+.severity-error { background: #fde8ea; color: #9d1f2f; }
+.validation-empty { padding: 12px; border-radius: 8px; background: #eaf6f1; color: #176b62; font-size: 12px; }
 .language-fieldset { border: 1px solid #d9e3e5; border-radius: 8px; margin: 0 0 12px; padding: 10px; }
 .language-fieldset legend { color: #34434d; font-size: 12px; font-weight: 600; padding: 0 5px; }
 .language-fieldset .checkbox-row { margin-bottom: 0; }
@@ -107,4 +126,5 @@ footer a:hover { text-decoration: underline; }
   .two-columns { grid-template-columns: 1fr; }
   .actions-card { grid-template-columns: 1fr; }
   .actions-card .ghost { grid-column: auto; }
+  .validation-checks { grid-template-columns: 1fr; }
 }
