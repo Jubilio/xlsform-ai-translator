@@ -41,6 +41,8 @@ O suplemento traduz conteúdos linguísticos de um XLSForm sem alterar os elemen
 
 ## Principais funcionalidades
 
+- Criação automática das folhas `survey`, `choices` e `settings` com idiomas configuráveis.
+- Adição segura de colunas de idioma a XLSForms existentes, sem duplicar convenções equivalentes.
 - Tradução da célula ou do intervalo actualmente seleccionado.
 - Tradução automática das folhas `survey` e `choices`.
 - Criação de colunas como `label::Portuguese`, sem apagar `label::English`.
@@ -230,6 +232,16 @@ AZURE_TRANSLATOR_REGION=sua_regiao_azure
 Depois de alterar `.env`, reinicie `npm run dev`.
 
 ## Como utilizar
+
+### Criar um modelo XLSForm
+
+1. Clique em **Criar modelo XLSForm**.
+2. Escolha o idioma principal e marque os idiomas adicionais.
+3. Escolha cabeçalhos com código, como `label::Portuguese (pt)`, ou apenas com o nome do idioma.
+4. Introduza `form_title` e `form_id`.
+5. Clique em **Criar modelo**.
+
+O suplemento cria `survey`, `choices` e `settings`. Se alguma dessas folhas já contiver dados, a criação é cancelada antes de escrever qualquer conteúdo. Para um formulário existente, utilize **Adicionar idiomas**; apenas os cabeçalhos ausentes são acrescentados.
 
 ### Traduzir células seleccionadas
 

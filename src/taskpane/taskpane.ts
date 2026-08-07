@@ -1,9 +1,11 @@
 import "./taskpane.css";
 import { translateBatch } from "../services/api.service";
 import {
+  addLanguagesToXLSForm,
   applyTranslationPlan,
   collectSelectionPlan,
-  collectXLSFormPlan
+  collectXLSFormPlan,
+  createXLSFormTemplate
 } from "../services/excel.service";
 import { validateTranslation } from "../services/validation.service";
 import { getBuiltInGlossary } from "../utils/glossary";
@@ -53,6 +55,27 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
     translateSelection: "Traduzir selecção",
     translateXlsform: "Traduzir XLSForm",
     analyseStructure: "Analisar estrutura",
+    templateBuilder: "Criar modelo XLSForm",
+    templateTitle: "Criar modelo XLSForm",
+    templateIntro: "Crie as folhas e cabeçalhos ou adicione idiomas sem substituir dados.",
+    primaryLanguage: "Idioma principal",
+    headerFormat: "Formato dos cabeçalhos",
+    headerNameCode: "Nome + código",
+    headerNameOnly: "Apenas nome",
+    templateLanguages: "Idiomas do modelo",
+    formTitle: "Título do formulário",
+    formId: "ID do formulário",
+    createTemplate: "Criar modelo",
+    addLanguages: "Adicionar idiomas",
+    creatingTemplate: "A criar o modelo XLSForm…",
+    addingLanguages: "A adicionar idiomas…",
+    templateCreated: "Modelo XLSForm criado com sucesso.",
+    languagesAdded: "Idiomas adicionados com sucesso.",
+    sheetsCreated: "Folhas criadas: {sheets}.",
+    columnsAdded: "{count} cabeçalhos adicionados.",
+    columnsSkipped: "{count} cabeçalhos existentes foram preservados.",
+    invalidFormTitle: "Introduza o título do formulário.",
+    invalidFormId: "O ID deve conter apenas letras, números, hífen e sublinhado, sem espaços.",
     preparing: "A preparar…",
     previewTitle: "Pré-visualização",
     applyTranslations: "Aplicar traduções",
@@ -120,6 +143,27 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
     translateSelection: "Translate selection",
     translateXlsform: "Translate XLSForm",
     analyseStructure: "Analyse structure",
+    templateBuilder: "Create XLSForm template",
+    templateTitle: "Create XLSForm template",
+    templateIntro: "Create worksheets and headers or add languages without replacing data.",
+    primaryLanguage: "Primary language",
+    headerFormat: "Header format",
+    headerNameCode: "Name + code",
+    headerNameOnly: "Name only",
+    templateLanguages: "Template languages",
+    formTitle: "Form title",
+    formId: "Form ID",
+    createTemplate: "Create template",
+    addLanguages: "Add languages",
+    creatingTemplate: "Creating XLSForm template…",
+    addingLanguages: "Adding languages…",
+    templateCreated: "XLSForm template created successfully.",
+    languagesAdded: "Languages added successfully.",
+    sheetsCreated: "Worksheets created: {sheets}.",
+    columnsAdded: "{count} headers added.",
+    columnsSkipped: "{count} existing headers were preserved.",
+    invalidFormTitle: "Enter the form title.",
+    invalidFormId: "The ID may contain only letters, numbers, hyphens, and underscores, with no spaces.",
     preparing: "Preparing…",
     previewTitle: "Preview",
     applyTranslations: "Apply translations",
@@ -236,6 +280,44 @@ function populateLanguages(): void {
   target.value = targetValue;
 }
 
+function populateTemplateLanguages(): void {
+  const primary = element<HTMLSelectElement>("template-primary-language");
+  const primaryValue = primary.value || "pt";
+  primary.replaceChildren();
+  for (const language of LANGUAGES) {
+    primary.add(new Option(languageDisplayName(language.code), language.code));
+  }
+  primary.value = LANGUAGES.some((language) => language.code === primaryValue)
+    ? primaryValue
+    : "pt";
+
+  const options = element("template-language-options");
+  options.replaceChildren();
+  for (const language of LANGUAGES) {
+    const label = document.createElement("label");
+    label.className = "check";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = `template-language-${language.code}`;
+    checkbox.value = language.code;
+    checkbox.checked = language.code === "pt" || language.code === "en";
+    const text = document.createElement("span");
+    text.textContent = languageDisplayName(language.code);
+    label.append(checkbox, text);
+    options.appendChild(label);
+  }
+  updateTemplatePrimaryLanguage();
+}
+
+function updateTemplatePrimaryLanguage(): void {
+  const primaryCode = element<HTMLSelectElement>("template-primary-language").value;
+  for (const language of LANGUAGES) {
+    const checkbox = element<HTMLInputElement>(`template-language-${language.code}`);
+    checkbox.disabled = language.code === primaryCode;
+    if (checkbox.disabled) checkbox.checked = true;
+  }
+}
+
 function applyInterfaceLanguage(language: InterfaceLanguage): void {
   interfaceLanguage = language;
   saveLanguage(language);
@@ -250,7 +332,7 @@ function applyInterfaceLanguage(language: InterfaceLanguage): void {
   settingsButton.title = t("settingsButton");
   settingsButton.setAttribute("aria-label", t("settingsButton"));
 
-  for (const id of ["close-settings", "clear-preview"]) {
+  for (const id of ["close-settings", "close-template-builder", "clear-preview"]) {
     const button = element<HTMLButtonElement>(id);
     button.title = t("close");
     button.setAttribute("aria-label", t("close"));
@@ -258,6 +340,7 @@ function applyInterfaceLanguage(language: InterfaceLanguage): void {
 
   element<HTMLSelectElement>("interface-language").value = language;
   populateLanguages();
+  if (document.getElementById("template-primary-language")) populateTemplateLanguages();
 
   if (currentPlan && !element("preview-card").classList.contains("hidden")) {
     renderPreview(currentPlan);
@@ -274,9 +357,99 @@ function toggleSettings(forceOpen?: boolean): void {
 }
 
 function setBusy(isBusy: boolean): void {
-  for (const id of ["translate-selection", "translate-xlsform", "validate-xlsform", "apply-translations"]) {
+  for (const id of [
+    "translate-selection",
+    "translate-xlsform",
+    "validate-xlsform",
+    "apply-translations",
+    "create-template",
+    "add-template-languages"
+  ]) {
     const button = document.getElementById(id) as HTMLButtonElement | null;
     if (button) button.disabled = isBusy;
+  }
+}
+
+function toggleTemplateBuilder(forceOpen?: boolean): void {
+  const panel = element("template-builder");
+  const shouldOpen = forceOpen ?? panel.classList.contains("hidden");
+  panel.classList.toggle("hidden", !shouldOpen);
+  panel.setAttribute("aria-hidden", String(!shouldOpen));
+}
+
+function selectedTemplateLanguages(): LanguageOption[] {
+  const primaryCode = element<HTMLSelectElement>("template-primary-language").value;
+  const selected = LANGUAGES.filter((language) =>
+    element<HTMLInputElement>(`template-language-${language.code}`).checked
+  );
+  return [
+    ...selected.filter((language) => language.code === primaryCode),
+    ...selected.filter((language) => language.code !== primaryCode)
+  ];
+}
+
+function templateInputs(): {
+  languages: LanguageOption[];
+  primaryLanguage: LanguageOption;
+  headerStyle: "name" | "name-code";
+  formTitle: string;
+  formId: string;
+} {
+  const primaryLanguage = selectedLanguage("template-primary-language");
+  const languages = selectedTemplateLanguages();
+  const headerStyle = element<HTMLSelectElement>("template-header-style").value;
+  const formTitle = element<HTMLInputElement>("template-form-title").value.trim();
+  const formId = element<HTMLInputElement>("template-form-id").value.trim();
+  if (!formTitle) throw new Error(t("invalidFormTitle"));
+  if (!/^[A-Za-z0-9_-]+$/.test(formId)) throw new Error(t("invalidFormId"));
+  return {
+    languages,
+    primaryLanguage,
+    headerStyle: headerStyle === "name" ? "name" : "name-code",
+    formTitle,
+    formId
+  };
+}
+
+async function handleCreateTemplate(): Promise<void> {
+  setBusy(true);
+  clearResult();
+  try {
+    const options = templateInputs();
+    showProgress(t("creatingTemplate"), 0, 1);
+    const result = await createXLSFormTemplate(options);
+    showProgress(t("appliedSuccessfully"), 1, 1);
+    showResult(
+      `<strong>${t("templateCreated")}</strong><ul class="result-list">` +
+      `<li>${t("sheetsCreated", { sheets: result.createdSheets.join(", ") || "survey, choices, settings" })}</li>` +
+      `<li>${t("columnsAdded", { count: result.addedColumns })}</li></ul>`
+    );
+    window.setTimeout(hideProgress, 800);
+  } catch (error) {
+    showError(error);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function handleAddTemplateLanguages(): Promise<void> {
+  setBusy(true);
+  clearResult();
+  try {
+    const options = templateInputs();
+    showProgress(t("addingLanguages"), 0, 1);
+    const result = await addLanguagesToXLSForm(options.languages, options.headerStyle);
+    showProgress(t("appliedSuccessfully"), 1, 1);
+    showResult(
+      `<strong>${t("languagesAdded")}</strong><ul class="result-list">` +
+      `<li>${t("columnsAdded", { count: result.addedColumns })}</li>` +
+      `<li>${t("columnsSkipped", { count: result.skippedColumns })}</li></ul>`
+    );
+    window.setTimeout(hideProgress, 800);
+  } catch (error) {
+    showError(error);
+  } finally {
+    setBusy(false);
   }
 }
 
@@ -575,6 +748,11 @@ Office.onReady((info) => {
   element<HTMLButtonElement>("translate-selection").addEventListener("click", handleSelection);
   element<HTMLButtonElement>("translate-xlsform").addEventListener("click", handleXLSForm);
   element<HTMLButtonElement>("validate-xlsform").addEventListener("click", analyseXLSForm);
+  element<HTMLButtonElement>("toggle-template-builder").addEventListener("click", () => toggleTemplateBuilder());
+  element<HTMLButtonElement>("close-template-builder").addEventListener("click", () => toggleTemplateBuilder(false));
+  element<HTMLSelectElement>("template-primary-language").addEventListener("change", updateTemplatePrimaryLanguage);
+  element<HTMLButtonElement>("create-template").addEventListener("click", handleCreateTemplate);
+  element<HTMLButtonElement>("add-template-languages").addEventListener("click", handleAddTemplateLanguages);
   element<HTMLButtonElement>("apply-translations").addEventListener("click", async () => {
     setBusy(true);
     try {
