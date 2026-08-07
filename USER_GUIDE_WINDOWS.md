@@ -56,7 +56,38 @@ Quando a opção estiver disponível:
 
 Use este método quando o Excel Desktop não mostrar **Upload My Add-in**.
 
-### 4.1 Criar uma pasta para o manifesto
+> Este método de catálogo numa pasta partilhada destina-se ao sideload e a testes internos no Windows. Para distribuição institucional em produção, utilize a implantação centralizada do Microsoft 365.
+
+### 4.1 Instalação automática recomendada
+
+1. Extraia todos os ficheiros do projecto para uma pasta local.
+2. Feche completamente o Microsoft Excel.
+3. Clique duas vezes em:
+
+```text
+INSTALL_TRUSTED_CATALOG_WINDOWS.bat
+```
+
+4. Aceite o pedido de permissão de Administrador do Windows.
+5. Aguarde a mensagem **Instalação concluída**.
+
+O instalador executa automaticamente estas operações:
+
+- cria `C:\OfficeAddins`;
+- copia `manifest.production.xml`;
+- cria a partilha `OfficeAddins` com acesso de leitura para o utilizador actual;
+- testa o caminho `\\NOME-DO-PC\OfficeAddins`;
+- regista o catálogo no Microsoft Office com **Show in Menu** activado.
+
+O instalador pode ser executado novamente para actualizar o manifesto. Ele não fecha o Excel automaticamente, evitando a perda de ficheiros não guardados.
+
+Depois da instalação, avance para a secção **4.5 Adicionar o Add-in**.
+
+### Instalação manual alternativa
+
+Utilize as próximas etapas apenas se o instalador automático não puder ser executado devido às políticas da organização.
+
+### 4.2 Criar uma pasta para o manifesto
 
 Crie:
 
@@ -70,7 +101,7 @@ Copie para essa pasta:
 manifest.production.xml
 ```
 
-### 4.2 Partilhar a pasta
+### 4.3 Partilhar a pasta
 
 No Explorador de Ficheiros:
 
@@ -95,7 +126,7 @@ O caminho partilhado ficará semelhante a:
 
 Teste esse caminho no Explorador de Ficheiros antes de continuar.
 
-### 4.3 Registar o catálogo no Excel
+### 4.4 Registar o catálogo no Excel
 
 No Excel em inglês:
 
@@ -121,7 +152,7 @@ Depois:
 4. Feche completamente o Excel.
 5. Abra novamente o Excel.
 
-### 4.4 Adicionar o Add-in
+### 4.5 Adicionar o Add-in
 
 No Excel:
 
