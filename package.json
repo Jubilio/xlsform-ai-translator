@@ -1,6 +1,6 @@
 {
   "name": "xlsform-ai-translator",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "private": true,
   "description": "Office Add-in para traduzir questionários Kobo/XLSForm sem alterar códigos, fórmulas ou placeholders.",
   "license": "MIT",
@@ -34,7 +34,8 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.0",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "read-excel-file": "^9.3.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
