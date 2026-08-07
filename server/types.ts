@@ -1,4 +1,4 @@
-export type ProviderName = "openai" | "deepl" | "microsoft" | "mock";
+export type ProviderName = "openai" | "deepl" | "microsoft" | "google" | "mock";
 
 export interface TranslationItem {
   id: string;

@@ -1,4 +1,4 @@
-type SupportedProvider = "openai" | "deepl" | "microsoft";
+type SupportedProvider = "openai" | "deepl" | "microsoft" | "google";
 type UiLanguage = "pt" | "en";
 
 const TEXT = {
@@ -15,6 +15,7 @@ const TEXT = {
     openai: "OpenAI: crie uma conta na plataforma, active a facturação quando exigida e gere uma secret key em API keys.",
     deepl: "DeepL: crie uma conta API Free ou Pro e copie a Authentication Key na área da conta.",
     microsoft: "Microsoft Translator: crie um recurso Translator no Azure. Copie uma key e a respectiva região.",
+    google: "Google Cloud Translation: active a Cloud Translation API no Google Cloud e crie uma API key com restrição para esse serviço.",
     required: "A chave do servidor falhou. Introduza uma chave pessoal para continuar e tente novamente.",
     configure: "Configurar chave pessoal",
     ready: "Chave pessoal disponível para esta sessão. Tente a tradução novamente.",
@@ -33,6 +34,7 @@ const TEXT = {
     openai: "OpenAI: create a platform account, enable billing when required, and generate a secret key under API keys.",
     deepl: "DeepL: create an API Free or Pro account and copy the Authentication Key from your account area.",
     microsoft: "Microsoft Translator: create a Translator resource in Azure. Copy one key and its matching region.",
+    google: "Google Cloud Translation: enable the Cloud Translation API in Google Cloud and create an API key restricted to that service.",
     required: "The server key failed. Enter a personal key to continue, then retry the translation.",
     configure: "Configure personal key",
     ready: "A personal key is available for this session. Retry the translation.",
@@ -43,7 +45,8 @@ const TEXT = {
 const providerLinks: Record<SupportedProvider, string> = {
   openai: "https://platform.openai.com/api-keys",
   deepl: "https://www.deepl.com/your-account/keys",
-  microsoft: "https://portal.azure.com/"
+  microsoft: "https://portal.azure.com/",
+  google: "https://console.cloud.google.com/apis/credentials"
 };
 
 function el<T extends HTMLElement>(id: string): T | null {
@@ -60,7 +63,7 @@ function storageKey(provider: SupportedProvider): string {
 
 function selectedProvider(): SupportedProvider {
   const value = el<HTMLSelectElement>("personal-api-provider")?.value;
-  return value === "deepl" || value === "microsoft" ? value : "openai";
+  return value === "deepl" || value === "microsoft" || value === "google" ? value : "openai";
 }
 
 function setText(): void {
@@ -76,6 +79,7 @@ function setText(): void {
     "personal-api-openai-help": "openai",
     "personal-api-deepl-help": "deepl",
     "personal-api-microsoft-help": "microsoft",
+    "personal-api-google-help": "google",
     "personal-api-configure": "configure"
   };
   for (const [id, key] of Object.entries(mappings)) {
@@ -147,7 +151,7 @@ function initialise(): void {
     setText();
   });
   el("personal-api-clear")?.addEventListener("click", () => {
-    (["openai", "deepl", "microsoft"] as SupportedProvider[]).forEach((provider) => sessionStorage.removeItem(storageKey(provider)));
+    (["openai", "deepl", "microsoft", "google"] as SupportedProvider[]).forEach((provider) => sessionStorage.removeItem(storageKey(provider)));
     sessionStorage.removeItem("xlsform-api-region-microsoft");
     loadProviderCredentials();
     const status = el("personal-api-status");

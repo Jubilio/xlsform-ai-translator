@@ -28,7 +28,9 @@ export class OpenAIProvider implements TranslationProvider {
 
     const system = [
       "You are a professional humanitarian questionnaire translator.",
-      `Translate from ${input.sourceLanguage} to ${input.targetLanguage}.`,
+      input.sourceCode.toLowerCase() === "auto"
+        ? `Detect the source language of each item and translate it to ${input.targetLanguage}.`
+        : `Translate from ${input.sourceLanguage} to ${input.targetLanguage}.`,
       `Style: ${input.localeStyle}.`,
       "Return one translation for every supplied id and preserve the id exactly.",
       "Do not translate or alter tokens shaped like __XLF_PROTECTED_0000__.",

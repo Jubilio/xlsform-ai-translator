@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.0-0f766e" alt="Version 1.3.0" />
+  <img src="https://img.shields.io/badge/version-1.4.0-0f766e" alt="Version 1.4.0" />
   <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&amp;logoColor=white" alt="TypeScript 5.8" />
   <img src="https://img.shields.io/badge/Microsoft%20Excel-Office%20Add--in-217346?logo=microsoftexcel&amp;logoColor=white" alt="Microsoft Excel Office Add-in" />
   <img src="https://img.shields.io/badge/Node.js-%3E%3D20-339933?logo=nodedotjs&amp;logoColor=white" alt="Node.js 20 or later" />
@@ -48,6 +48,8 @@ O suplemento permite começar um XLSForm do zero, acrescentar idiomas a um formu
 - Comparação do formulário aberto com um XLSForm canónico para detectar alterações ou conteúdo obrigatório ausente.
 - Relatório navegável de validação e exportação para a folha `_validation_report`.
 - Tradução da célula ou do intervalo actualmente seleccionado.
+- Detecção automática opcional do idioma ao traduzir uma selecção.
+- Processamento em lotes controlados pelo número de células e pelo total de caracteres.
 - Tradução automática das folhas `survey` e `choices` e do `form_title` em `settings`.
 - Criação de colunas como `label::Portuguese`, sem apagar `label::English`.
 - Preservação de `${variáveis}`, HTML, URLs, quebras de linha e placeholders.
@@ -56,7 +58,7 @@ O suplemento permite começar um XLSForm do zero, acrescentar idiomas a um formu
 - Pré-visualização editável antes de aplicar qualquer alteração.
 - Glossário humanitário Inglês–Português incorporado.
 - Registo oculto de alterações na folha `_translation_log`.
-- Backend seguro compatível com OpenAI, DeepL e Microsoft Translator.
+- Backend seguro compatível com OpenAI, DeepL, Microsoft Translator e Google Cloud Translation.
 - Modo `mock` para testar o fluxo sem chave de API.
 - Testes automáticos e XLSForm de exemplo.
 
@@ -87,7 +89,7 @@ flowchart TD
     B --> C[Criar ou ampliar XLSForm]
     B --> D[Traduzir conteúdo]
     D --> E[Express Backend]
-    E --> F[OpenAI, DeepL, Microsoft ou Mock]
+    E --> F[OpenAI, DeepL, Microsoft, Google ou Mock]
 ```
 
 As chaves de API permanecem no backend e nunca são expostas ao código executado dentro do Excel.
@@ -231,6 +233,16 @@ AZURE_TRANSLATOR_KEY=coloque_a_chave_aqui
 AZURE_TRANSLATOR_REGION=sua_regiao_azure
 ```
 
+### Google Cloud Translation
+
+```env
+TRANSLATION_PROVIDER=google
+GOOGLE_TRANSLATE_API_KEY=coloque_a_chave_aqui
+GOOGLE_TRANSLATE_API_URL=https://translation.googleapis.com/language/translate/v2
+```
+
+Active a **Cloud Translation API** no projecto Google Cloud e restrinja a API key a esse serviço. A chave é enviada pelo backend através do cabeçalho `X-Goog-Api-Key`, não é incorporada no ficheiro Excel nem exposta na URL.
+
 Depois de alterar `.env`, reinicie `npm run dev`.
 
 ## Como utilizar
@@ -286,6 +298,10 @@ A operação acrescenta as colunas `label`, `hint` e `constraint_message` ausent
 5. Clique em **Aplicar traduções**.
 
 A tradução escreve o resultado no bloco correspondente à direita da selecção e mantém a formatação. Fórmulas, números e células vazias na origem são ignorados. Se o bloco de destino já contiver dados ou fórmulas, active **Substituir traduções existentes** para substituir as células correspondentes; com a opção desactivada, o suplemento bloqueia a operação para proteger o conteúdo existente.
+
+Se não souber o idioma de origem, escolha **Detectar automaticamente**. Esta opção está disponível para **Traduzir selecção** e deixa o provedor detectar o idioma de cada texto. Para traduzir um XLSForm completo, é necessário seleccionar um idioma de origem explícito porque o Add-in utiliza esse idioma para identificar as colunas, como `label::English`.
+
+Para reduzir falhas e latência, cada pedido contém no máximo 30 células e aproximadamente 4.500 caracteres. Textos maiores são automaticamente separados em pedidos adicionais.
 
 ### Comparar com um XLSForm de referência
 
@@ -434,7 +450,7 @@ Sim, mas apenas quando a opção **Substituir traduções existentes** estiver a
 
 ### Funciona sem Internet?
 
-O fluxo pode ser testado localmente no modo `mock`. Uma tradução real através de OpenAI, DeepL ou Microsoft Translator requer ligação à Internet e credenciais válidas.
+O fluxo pode ser testado localmente no modo `mock`. Uma tradução real através de OpenAI, DeepL, Microsoft Translator ou Google Cloud Translation requer ligação à Internet e credenciais válidas.
 
 ### As chaves de API ficam no Excel?
 

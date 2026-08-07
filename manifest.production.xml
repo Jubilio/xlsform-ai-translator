@@ -5,7 +5,7 @@
            xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
            xsi:type="TaskPaneApp">
   <Id>61cf14b5-762a-4f77-85f7-3b021cae9d13</Id>
-  <Version>1.3.0.0</Version>
+  <Version>1.4.0.0</Version>
   <ProviderName>NexoVibe</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="XLSForm AI Translator">
@@ -32,7 +32,7 @@
     </Sets>
   </Requirements>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://xlsform-ai-translator.onrender.com/taskpane.html?v=1.3.0"/>
+    <SourceLocation DefaultValue="https://xlsform-ai-translator.onrender.com/taskpane.html?v=1.4.0"/>
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
 
@@ -80,8 +80,8 @@
         <bt:Image id="Icon.80" DefaultValue="https://xlsform-ai-translator.onrender.com/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Commands.Url" DefaultValue="https://xlsform-ai-translator.onrender.com/taskpane.html?v=1.3.0"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://xlsform-ai-translator.onrender.com/taskpane.html?v=1.3.0"/>
+        <bt:Url id="Commands.Url" DefaultValue="https://xlsform-ai-translator.onrender.com/taskpane.html?v=1.4.0"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://xlsform-ai-translator.onrender.com/taskpane.html?v=1.4.0"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="Group.Label" DefaultValue="XLSForm"/>

@@ -242,7 +242,7 @@ Marque **Substituir traduções existentes** apenas quando pretender voltar a tr
 O botão **Traduzir selecção** funciona também em tabelas que não sejam XLSForm.
 
 1. Seleccione uma célula ou intervalo com texto.
-2. Escolha o idioma de origem e destino.
+2. Escolha o idioma de origem e destino. Para este modo, pode escolher **Detectar automaticamente** como idioma de origem.
 3. Clique em **Traduzir selecção**.
 4. Reveja as traduções.
 5. Clique em **Aplicar traduções**.
@@ -261,7 +261,9 @@ Selecção: A2:C10
 Destino:  D2:F10
 ```
 
-Se o bloco de destino já contiver dados, o Add-in interrompe a operação para evitar sobrescrita. Fórmulas, números e células vazias são ignorados.
+Se o bloco de destino já contiver dados, o Add-in interrompe a operação para evitar sobrescrita. Para substituir esse conteúdo de propósito, marque **Substituir traduções existentes** antes de analisar a selecção. Fórmulas, números e células vazias são ignorados.
+
+A detecção automática está disponível apenas em **Traduzir selecção**. Na tradução completa de um XLSForm, escolha um idioma de origem explícito, porque esse idioma também identifica os cabeçalhos `label::*`, `hint::*` e `constraint_message::*` que devem ser lidos.
 
 ## 8. Conteúdo protegido
 

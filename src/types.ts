@@ -1,4 +1,4 @@
-export type ProviderName = "auto" | "openai" | "deepl" | "microsoft" | "mock";
+export type ProviderName = "auto" | "openai" | "deepl" | "microsoft" | "google" | "mock";
 
 export interface LanguageOption {
   name: string;
