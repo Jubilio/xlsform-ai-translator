@@ -4,6 +4,7 @@
 
 - Instalador automático para configurar um Trusted Add-in Catalog no Excel Desktop para Windows.
 - Correcção da resolução do caminho do manifesto em versões do Windows PowerShell onde `$PSScriptRoot` não está disponível durante a avaliação dos parâmetros.
+- Correcção dos ícones do Excel: todas as imagens do catálogo e da faixa passam a usar o mesmo host HTTPS e a versão do manifesto é incrementada para renovar o cache do Office.
 - Suporte a cabeçalhos XLSForm com ou sem códigos de idioma, como `label::English` e `label::English (en)`.
 - Tradução opcional de `settings.form_title`, preservando os campos técnicos da folha.
 

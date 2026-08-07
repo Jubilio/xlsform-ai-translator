@@ -171,6 +171,8 @@ O botão deverá aparecer em:
 Home > XLSForm > Traduzir XLSForm
 ```
 
+Se o Excel mostrar um ícone genérico ou um ícone com artefactos depois de actualizar o manifesto, remova o Add-in, feche completamente todas as aplicações Office, execute novamente `INSTALL_TRUSTED_CATALOG_WINDOWS.bat` e volte a adicioná-lo pela folha **Shared Folder**. O manifesto actualizado usa um único host HTTPS para todos os tamanhos de ícone.
+
 ## 5. Abrir o Add-in
 
 1. Abra o ficheiro Excel ou XLSForm.
