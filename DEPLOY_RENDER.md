@@ -57,6 +57,16 @@ OPENAI_MODEL=gpt-5-mini
 OPENAI_BASE_URL=https://api.openai.com/v1
 ```
 
+### Google Cloud Translation
+
+```env
+TRANSLATION_PROVIDER=google
+GOOGLE_TRANSLATE_API_KEY=SUA_CHAVE
+GOOGLE_TRANSLATE_API_URL=https://translation.googleapis.com/language/translate/v2
+```
+
+Active previamente a Cloud Translation API e utilize uma API key restrita a esse serviço.
+
 Nunca coloque chaves no GitHub, no `manifest.xml` ou no frontend.
 
 ## 4. Testar o deploy

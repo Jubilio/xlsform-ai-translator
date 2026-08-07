@@ -13,7 +13,10 @@ export class MicrosoftProvider implements TranslationProvider {
     const region = this.credentials.region || process.env.AZURE_TRANSLATOR_REGION;
     if (!key || !region) throw new Error("AZURE_TRANSLATOR_KEY e AZURE_TRANSLATOR_REGION devem estar configuradas.");
     const endpoint = (process.env.AZURE_TRANSLATOR_ENDPOINT || "https://api.cognitive.microsofttranslator.com").replace(/\/$/, "");
-    const url = `${endpoint}/translate?api-version=3.0&from=${encodeURIComponent(input.sourceCode)}&to=${encodeURIComponent(input.targetCode)}`;
+    const source = input.sourceCode.toLowerCase() === "auto"
+      ? ""
+      : `&from=${encodeURIComponent(input.sourceCode)}`;
+    const url = `${endpoint}/translate?api-version=3.0${source}&to=${encodeURIComponent(input.targetCode)}`;
     const response = await fetchJson<MicrosoftTranslation[]>(url, {
       method: "POST",
       headers: {

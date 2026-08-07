@@ -3,6 +3,7 @@ import { DeepLProvider } from "./deepl.js";
 import { MicrosoftProvider } from "./microsoft.js";
 import { MockProvider } from "./mock.js";
 import { OpenAIProvider } from "./openai.js";
+import { GoogleProvider } from "./google.js";
 
 export interface UserCredentials {
   apiKey?: string;
@@ -14,6 +15,7 @@ export function configuredProviders(): Record<ProviderName, boolean> {
     openai: Boolean(process.env.OPENAI_API_KEY),
     deepl: Boolean(process.env.DEEPL_API_KEY),
     microsoft: Boolean(process.env.AZURE_TRANSLATOR_KEY && process.env.AZURE_TRANSLATOR_REGION),
+    google: Boolean(process.env.GOOGLE_TRANSLATE_API_KEY),
     mock: true
   };
 }
@@ -30,6 +32,7 @@ export function resolveProvider(requested: string, credentials: UserCredentials 
     case "openai": return new OpenAIProvider(credentials.apiKey);
     case "deepl": return new DeepLProvider(credentials.apiKey);
     case "microsoft": return new MicrosoftProvider(credentials);
+    case "google": return new GoogleProvider(credentials.apiKey);
     case "mock": return new MockProvider();
     default: throw new Error(`Provedor não suportado: ${selected}`);
   }

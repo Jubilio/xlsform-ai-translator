@@ -10,6 +10,7 @@ const app = express();
 const port = Number(process.env.PORT || 3001);
 const maxBatchItems = Number(process.env.MAX_BATCH_ITEMS || 40);
 const maxTextLength = Number(process.env.MAX_TEXT_LENGTH || 5000);
+const maxBatchCharacters = Number(process.env.MAX_BATCH_CHARACTERS || 5000);
 
 type UserCredentials = { apiKey?: string; region?: string };
 
@@ -52,15 +53,23 @@ app.post("/api/translate", async (request, response) => {
     }
 
     const ids = new Set<string>();
+    let batchCharacters = 0;
     for (const item of body.items) {
       if (!item || typeof item.id !== "string" || typeof item.text !== "string") {
         return response.status(400).json({ error: "Cada item deve conter id e text.", code: "INVALID_REQUEST" });
       }
       if (ids.has(item.id)) return response.status(400).json({ error: `ID duplicado: ${item.id}`, code: "INVALID_REQUEST" });
       ids.add(item.id);
+      batchCharacters += item.text.length;
       if (item.text.length > maxTextLength) {
         return response.status(400).json({ error: `O texto ${item.id} excede ${maxTextLength} caracteres.`, code: "INVALID_REQUEST" });
       }
+    }
+    if (batchCharacters > maxBatchCharacters) {
+      return response.status(400).json({
+        error: `O pedido excede ${maxBatchCharacters} caracteres no total.`,
+        code: "INVALID_REQUEST"
+      });
     }
 
     const credentials = cleanCredentials(body.userCredentials);

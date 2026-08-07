@@ -17,6 +17,7 @@ import {
 } from "../services/validation-excel.service";
 import { getBuiltInGlossary } from "../utils/glossary";
 import { protectText, restoreText } from "../utils/protection";
+import { createTranslationBatches } from "../utils/batching";
 import type {
   LanguageOption,
   ProviderName,
@@ -33,12 +34,18 @@ const LANGUAGES: LanguageOption[] = [
   { name: "Spanish", code: "es", headerName: "Spanish" },
   { name: "Swahili", code: "sw", headerName: "Swahili" }
 ];
+const AUTO_LANGUAGE: LanguageOption = {
+  name: "Detect automatically",
+  code: "auto",
+  headerName: ""
+};
 
 type InterfaceLanguage = "pt" | "en";
 type TranslationDictionary = Record<string, string>;
 
 const STORAGE_KEY = "xlsform-translator-interface-language";
 const BATCH_SIZE = 30;
+const BATCH_CHARACTER_LIMIT = 4500;
 
 const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
   pt: {
@@ -49,6 +56,7 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
     officeWarning: "Abra este painel dentro do Microsoft Excel.",
     languagesTitle: "Idiomas",
     source: "Origem",
+    detectAutomatically: "Detectar automaticamente",
     target: "Destino",
     languageVariant: "Variante linguística",
     localeMozambique: "Português de Moçambique",
@@ -118,6 +126,7 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
     invalidElement: "Elemento não encontrado: {id}",
     invalidLanguage: "Idioma inválido.",
     selectDifferentLanguages: "Seleccione idiomas diferentes.",
+    automaticXlsformSource: "Para traduzir um XLSForm completo, seleccione o idioma correspondente às colunas de origem. A detecção automática está disponível para Traduzir selecção.",
     noEligibleCells: "Não foram encontradas células elegíveis para tradução.",
     translating: "A traduzir…",
     providerMissingTranslation: "O provedor não devolveu esta tradução.",
@@ -160,6 +169,7 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
     officeWarning: "Open this panel inside Microsoft Excel.",
     languagesTitle: "Languages",
     source: "Source",
+    detectAutomatically: "Detect automatically",
     target: "Target",
     languageVariant: "Language variant",
     localeMozambique: "Mozambican Portuguese",
@@ -229,6 +239,7 @@ const I18N: Record<InterfaceLanguage, TranslationDictionary> = {
     invalidElement: "Element not found: {id}",
     invalidLanguage: "Invalid language.",
     selectDifferentLanguages: "Select two different languages.",
+    automaticXlsformSource: "To translate a complete XLSForm, select the language that identifies the source columns. Automatic detection is available for Translate selection.",
     noEligibleCells: "No eligible cells were found for translation.",
     translating: "Translating…",
     providerMissingTranslation: "The provider did not return this translation.",
@@ -304,7 +315,7 @@ function element<T extends HTMLElement>(id: string): T {
 
 function selectedLanguage(selectId: string): LanguageOption {
   const code = element<HTMLSelectElement>(selectId).value;
-  const language = LANGUAGES.find((item) => item.code === code);
+  const language = [AUTO_LANGUAGE, ...LANGUAGES].find((item) => item.code === code);
   if (!language) throw new Error(t("invalidLanguage"));
   return language;
 }
@@ -328,6 +339,7 @@ function populateLanguages(): void {
   const targetValue = target.value || "pt";
   source.replaceChildren();
   target.replaceChildren();
+  source.add(new Option(t("detectAutomatically"), AUTO_LANGUAGE.code));
   for (const language of LANGUAGES) {
     source.add(new Option(languageDisplayName(language.code), language.code));
     target.add(new Option(languageDisplayName(language.code), language.code));
@@ -583,8 +595,8 @@ async function translatePlan(plan: TranslationPlan): Promise<void> {
   }
 
   let translatedCount = 0;
-  for (let start = 0; start < plan.jobs.length; start += BATCH_SIZE) {
-    const batch = plan.jobs.slice(start, start + BATCH_SIZE);
+  const batches = createTranslationBatches(plan.jobs, BATCH_SIZE, BATCH_CHARACTER_LIMIT);
+  for (const batch of batches) {
     showProgress(t("translating"), translatedCount, plan.jobs.length);
     const response = await translateBatch({
       provider,
@@ -737,6 +749,7 @@ async function handleXLSForm(): Promise<void> {
       element<HTMLInputElement>("sheet-settings").checked ? "settings" : ""
     ].filter(Boolean);
     if (sheetNames.length === 0) throw new Error(t("selectSheet"));
+    if (source.code === "auto") throw new Error(t("automaticXlsformSource"));
 
     showProgress(t("analysingXlsform"), 0, 1);
     const plan = await collectXLSFormPlan({
@@ -767,6 +780,7 @@ async function analyseXLSForm(): Promise<void> {
       element<HTMLInputElement>("sheet-settings").checked ? "settings" : ""
     ].filter(Boolean);
     if (sheetNames.length === 0) throw new Error(t("selectSheet"));
+    if (source.code === "auto") throw new Error(t("automaticXlsformSource"));
     const plan = await collectXLSFormPlan({
       sheetNames,
       sourceHeaderLanguage: source.headerName,

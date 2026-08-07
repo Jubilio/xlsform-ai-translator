@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Google Cloud Translation — Basic v2 como novo provedor do backend e das chaves pessoais de fallback.
+- Detecção automática do idioma de origem para **Traduzir selecção**, suportada por todos os provedores reais.
+- Lotes limitados simultaneamente a 30 células e aproximadamente 4.500 caracteres para reduzir erros de tamanho e latência.
+- Validação no backend do total de caracteres enviado por pedido.
 - Comparação de um formulário aberto com um XLSForm canónico, inspirada no pacote `idem` da IMPACT Initiatives.
 - Verificação de perguntas, listas, opções, folhas obrigatórias e correspondência de `type`/lista por pergunta.
 - Navegação directa para problemas encontrados e exportação para `_validation_report`.
