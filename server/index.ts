@@ -100,9 +100,27 @@ app.post("/api/translate", async (request, response) => {
 });
 
 const distPath = path.resolve(process.cwd(), "dist");
-app.use(express.static(distPath, { extensions: ["html"], maxAge: process.env.NODE_ENV === "production" ? "1h" : 0 }));
-app.get("/", (_request, response) => response.sendFile(path.join(distPath, "taskpane.html")));
-app.get("/taskpane.html", (_request, response) => response.sendFile(path.join(distPath, "taskpane.html")));
+app.use(express.static(distPath, {
+  extensions: ["html"],
+  maxAge: process.env.NODE_ENV === "production" ? "1h" : 0,
+  setHeaders: (response, filePath) => {
+    if (filePath.endsWith(".html")) {
+      response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      response.setHeader("Pragma", "no-cache");
+    } else if (/\.[a-f0-9]{8}\.js$/i.test(filePath)) {
+      response.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    }
+  }
+}));
+
+function sendTaskpane(response: express.Response): void {
+  response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  response.setHeader("Pragma", "no-cache");
+  response.sendFile(path.join(distPath, "taskpane.html"));
+}
+
+app.get("/", (_request, response) => sendTaskpane(response));
+app.get("/taskpane.html", (_request, response) => sendTaskpane(response));
 app.use((_request, response) => response.status(404).json({ error: "Recurso não encontrado." }));
 
 app.listen(port, "0.0.0.0", () => {

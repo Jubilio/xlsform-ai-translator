@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Correcção do cache do painel: HTML sem cache e bundles JavaScript com hash de conteúdo impedem combinações entre interface nova e código antigo.
 - Criador de modelos XLSForm com folhas `survey`, `choices` e `settings`, idiomas configuráveis e dois formatos de cabeçalho.
 - Função para adicionar idiomas a formulários existentes sem duplicar colunas nem substituir dados.
 - Instalador automático para configurar um Trusted Add-in Catalog no Excel Desktop para Windows.
