@@ -51,6 +51,12 @@ select:focus, textarea:focus, input[type="text"]:focus, input[type="password"]:f
 input[type="checkbox"] { accent-color: #176b62; }
 .actions-card { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .actions-card .ghost { grid-column: 1 / -1; }
+.template-builder { border-color: #bdd7d3; }
+.language-fieldset { border: 1px solid #d9e3e5; border-radius: 8px; margin: 0 0 12px; padding: 10px; }
+.language-fieldset legend { color: #34434d; font-size: 12px; font-weight: 600; padding: 0 5px; }
+.language-fieldset .checkbox-row { margin-bottom: 0; }
+.language-fieldset label { margin-bottom: 2px; }
+.template-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .button {
   border: 0; border-radius: 8px; padding: 10px 12px; cursor: pointer; font-weight: 650;
   transition: transform .08s ease, opacity .15s ease;
