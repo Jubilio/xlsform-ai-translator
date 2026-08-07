@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- A opção **Substituir traduções existentes** passa a permitir que **Traduzir selecção** substitua dados ou fórmulas no bloco de destino à direita.
 - Correcção do cache do painel: HTML sem cache e bundles JavaScript com hash de conteúdo impedem combinações entre interface nova e código antigo.
 - Criador de modelos XLSForm com folhas `survey`, `choices` e `settings`, idiomas configuráveis e dois formatos de cabeçalho.
 - Função para adicionar idiomas a formulários existentes sem duplicar colunas nem substituir dados.
