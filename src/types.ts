@@ -77,3 +77,41 @@ export interface ApplyMetadata {
   targetLanguage: string;
   provider: string;
 }
+
+export type XLSFormSheetName = "survey" | "choices" | "settings";
+
+export interface XLSFormSheetData {
+  name: XLSFormSheetName;
+  rows: unknown[][];
+}
+
+export interface XLSFormData {
+  survey?: XLSFormSheetData;
+  choices?: XLSFormSheetData;
+  settings?: XLSFormSheetData;
+}
+
+export type ValidationCheck =
+  | "structure"
+  | "question_names"
+  | "list_names"
+  | "survey_list_names"
+  | "choices"
+  | "question_types";
+
+export interface XLSFormValidationIssue {
+  check: ValidationCheck;
+  severity: "error" | "warning" | "info";
+  sheetName: XLSFormSheetName;
+  name: string;
+  listName?: string;
+  detail: string;
+  rowNumber?: number;
+  columnNumber?: number;
+}
+
+export interface XLSFormValidationOptions {
+  checks: ValidationCheck[];
+  passingLists: string[];
+  language: "pt" | "en";
+}
