@@ -640,7 +640,9 @@ async function handleSelection(): Promise<void> {
   clearResult();
   try {
     showProgress(t("readingSelection"), 0, 1);
-    const plan = await collectSelectionPlan();
+    const plan = await collectSelectionPlan(
+      element<HTMLInputElement>("overwrite-existing").checked
+    );
     await translatePlan(plan);
   } catch (error) {
     showError(error);
