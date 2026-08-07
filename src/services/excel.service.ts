@@ -1,5 +1,6 @@
 import type { ApplyMetadata, ColumnPlan, PendingTranslation, TranslationPlan } from "../types";
 import {
+  equivalentTargetHeaders,
   isFormula,
   isTranslatableHeader,
   isTranslatableValue,
@@ -103,7 +104,9 @@ export async function collectSelectionPlan(): Promise<TranslationPlan> {
 interface XLSFormOptions {
   sheetNames: string[];
   sourceHeaderLanguage: string;
+  sourceLanguageCode?: string;
   targetHeaderLanguage: string;
+  targetLanguageCode?: string;
   overwriteExisting: boolean;
 }
 
@@ -126,15 +129,63 @@ export async function collectXLSFormPlan(options: XLSFormOptions): Promise<Trans
       const headers = (usedRange.values[0] || []).map(normaliseHeader);
       let nextColumnIndex = usedRange.columnCount;
 
+      if (sheetName.trim().toLowerCase() === "settings") {
+        const formTitleColumnIndex = headers.findIndex(
+          (header) => header.trim().toLowerCase() === "form_title"
+        );
+        if (formTitleColumnIndex >= 0 && usedRange.rowCount > 1) {
+          const original = usedRange.values[1]?.[formTitleColumnIndex];
+          const formula = usedRange.formulas[1]?.[formTitleColumnIndex];
+          if (isTranslatableValue(original) && !isFormula(formula)) {
+            columns.push({
+              sheetName,
+              sourceColumnIndex: formTitleColumnIndex,
+              targetColumnIndex: formTitleColumnIndex,
+              sourceHeader: "form_title",
+              targetHeader: "form_title",
+              rowCount: usedRange.rowCount,
+              createTargetColumn: false
+            });
+            jobs.push({
+              id: `${sheetName}!${cellAddress(1, formTitleColumnIndex)}`,
+              sheetName,
+              sourceRowIndex: 1,
+              sourceColumnIndex: formTitleColumnIndex,
+              targetRowIndex: 1,
+              targetColumnIndex: formTitleColumnIndex,
+              original,
+              translated: "",
+              warnings: [],
+              sourceHeader: "form_title",
+              targetHeader: "form_title"
+            });
+          } else {
+            skipped++;
+          }
+        }
+        continue;
+      }
+
       for (let sourceColumnIndex = 0; sourceColumnIndex < headers.length; sourceColumnIndex++) {
         const sourceHeader = headers[sourceColumnIndex] || "";
-        if (!isTranslatableHeader(sourceHeader, options.sourceHeaderLanguage)) continue;
+        if (!isTranslatableHeader(
+          sourceHeader,
+          options.sourceHeaderLanguage,
+          options.sourceLanguageCode
+        )) continue;
 
-        const targetHeader = targetHeaderFor(sourceHeader, options.targetHeaderLanguage);
-        let targetColumnIndex = headers.findIndex(
-          (header) => header.toLowerCase() === targetHeader.toLowerCase()
+        const targetHeaders = equivalentTargetHeaders(
+          sourceHeader,
+          options.targetHeaderLanguage,
+          options.targetLanguageCode
+        );
+        let targetColumnIndex = headers.findIndex((header) =>
+          targetHeaders.some((candidate) => header.toLowerCase() === candidate.toLowerCase())
         );
         const createTargetColumn = targetColumnIndex < 0;
+        const targetHeader = createTargetColumn
+          ? targetHeaderFor(sourceHeader, options.targetHeaderLanguage, options.targetLanguageCode)
+          : (headers[targetColumnIndex] || targetHeaders[0] || "");
         if (createTargetColumn) {
           targetColumnIndex = nextColumnIndex++;
           headers[targetColumnIndex] = targetHeader;
