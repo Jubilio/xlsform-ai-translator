@@ -181,6 +181,20 @@ npm run stop
 
 O servidor local iniciado com `npm run dev` deve permanecer activo.
 
+## Instalação automática no Excel Desktop — Windows
+
+Para instalar o manifesto hospedado através de um Trusted Add-in Catalog:
+
+1. Feche completamente o Excel.
+2. Execute `INSTALL_TRUSTED_CATALOG_WINDOWS.bat`.
+3. Aceite o pedido de permissão de Administrador.
+4. Abra o Excel e seleccione **Home > Add-ins > More Add-ins > Shared Folder**.
+5. Escolha **XLSForm AI Translator** e clique em **Add**.
+
+O instalador cria e partilha `C:\OfficeAddins`, copia `manifest.production.xml` e regista o catálogo no Office para o utilizador actual. Consulte [`USER_GUIDE_WINDOWS.md`](USER_GUIDE_WINDOWS.md) para a instalação manual e resolução de problemas.
+
+> O catálogo numa pasta partilhada é um método de sideload/testes internos suportado apenas no Windows; não substitui a implantação institucional através do Microsoft 365.
+
 ## Configurar um provedor de tradução
 
 Edite `.env` e escolha um provedor padrão.
