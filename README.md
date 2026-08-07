@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.1-0f766e" alt="Version 1.2.1" />
+  <img src="https://img.shields.io/badge/version-1.2.2-0f766e" alt="Version 1.2.2" />
   <img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&amp;logoColor=white" alt="TypeScript 5.8" />
   <img src="https://img.shields.io/badge/Microsoft%20Excel-Office%20Add--in-217346?logo=microsoftexcel&amp;logoColor=white" alt="Microsoft Excel Office Add-in" />
   <img src="https://img.shields.io/badge/Node.js-%3E%3D20-339933?logo=nodedotjs&amp;logoColor=white" alt="Node.js 20 or later" />
@@ -282,7 +282,7 @@ A operação acrescenta as colunas `label`, `hint` e `constraint_message` ausent
 4. Reveja e edite as propostas.
 5. Clique em **Aplicar traduções**.
 
-A tradução substitui o texto das células seleccionadas, mas mantém a sua formatação. Fórmulas, números e células vazias são ignorados.
+A tradução escreve o resultado no bloco correspondente à direita da selecção e mantém a formatação. Fórmulas, números e células vazias na origem são ignorados. Se o bloco de destino já contiver dados ou fórmulas, active **Substituir traduções existentes** para substituir as células correspondentes; com a opção desactivada, o suplemento bloqueia a operação para proteger o conteúdo existente.
 
 ### Traduzir um XLSForm completo
 
