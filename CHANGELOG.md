@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Comparação de um formulário aberto com um XLSForm canónico, inspirada no pacote `idem` da IMPACT Initiatives.
+- Verificação de perguntas, listas, opções, folhas obrigatórias e correspondência de `type`/lista por pergunta.
+- Navegação directa para problemas encontrados e exportação para `_validation_report`.
+- Leitura local do ficheiro de referência no painel, sem envio do XLSForm ao backend.
 - A opção **Substituir traduções existentes** passa a permitir que **Traduzir selecção** substitua dados ou fórmulas no bloco de destino à direita.
 - Correcção do cache do painel: HTML sem cache e bundles JavaScript com hash de conteúdo impedem combinações entre interface nova e código antigo.
 - Criador de modelos XLSForm com folhas `survey`, `choices` e `settings`, idiomas configuráveis e dois formatos de cabeçalho.
